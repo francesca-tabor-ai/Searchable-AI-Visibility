@@ -4,6 +4,7 @@ import {
   uuid,
   timestamp,
   unique,
+  doublePrecision,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -56,9 +57,23 @@ export const citations = pgTable(
   })
 );
 
+/**
+ * Searchable Visibility Score™ per domain (computed daily).
+ * score and change stored as float; previous_score is the prior run's score for trend.
+ */
+export const domainVisibilityScores = pgTable("domain_visibility_scores", {
+  domain: text("domain").primaryKey(),
+  score: doublePrecision("score").notNull(),
+  previousScore: doublePrecision("previous_score"),
+  change: doublePrecision("change"),
+  computedAt: timestamp("computed_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Query = typeof queries.$inferSelect;
 export type NewQuery = typeof queries.$inferInsert;
 export type Response = typeof responses.$inferSelect;
 export type NewResponse = typeof responses.$inferInsert;
 export type Citation = typeof citations.$inferSelect;
 export type NewCitation = typeof citations.$inferInsert;
+export type DomainVisibilityScore = typeof domainVisibilityScores.$inferSelect;
+export type NewDomainVisibilityScore = typeof domainVisibilityScores.$inferInsert;

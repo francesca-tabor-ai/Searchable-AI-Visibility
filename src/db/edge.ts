@@ -4,12 +4,13 @@
  * Vercel Postgres connection string.
  * Lazy-initialized so build (e.g. Vercel) can run without DATABASE_URL.
  */
-import { drizzle } from "drizzle-orm/neon-serverless";
+import { drizzle, type NeonDatabase } from "drizzle-orm/neon-serverless";
 import * as schema from "./schema";
 
-let _db: ReturnType<typeof drizzle<typeof schema>> | null = null;
+type EdgeDb = NeonDatabase<typeof schema>;
+let _db: EdgeDb | null = null;
 
-function getDb() {
+function getDb(): EdgeDb {
   if (!_db) {
     const connectionString = process.env.DATABASE_URL;
     if (!connectionString) {
@@ -20,9 +21,9 @@ function getDb() {
   return _db;
 }
 
-export const db = new Proxy({} as ReturnType<typeof drizzle<typeof schema>>, {
+export const db = new Proxy({} as EdgeDb, {
   get(_, prop) {
-    return (getDb() as Record<string | symbol, unknown>)[prop];
+    return (getDb() as unknown as Record<string | symbol, unknown>)[prop];
   },
 });
 export { schema };

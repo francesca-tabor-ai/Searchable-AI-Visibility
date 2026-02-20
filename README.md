@@ -65,6 +65,11 @@ Health check for deployments (e.g. Railway). Returns `200` when the database is 
 
 **Response (200):** `{ "status": "ok" | "degraded" | "error", "checks": { "database": { "status": "up" }, "redis": { "status": "up" | "down" | "skipped" } }, ... }`
 
+### Searchable Visibility Score™
+
+- **`GET /api/visibility-scores`** — List latest score per domain (0–100), `previousScore`, and `change` (current − previous day). Computed by a daily cron.
+- **Cron:** `GET /api/cron/visibility-score` runs every 24h (e.g. 07:00 UTC on Vercel), aggregates citation/share/coverage/position/recency, and upserts into `domain_visibility_scores`. Secure with `CRON_SECRET`.
+
 ## Citation extraction
 
 - **Inline links:** `[Source](https://example.com)`
