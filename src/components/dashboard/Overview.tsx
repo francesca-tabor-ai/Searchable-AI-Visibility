@@ -17,7 +17,15 @@ type OverviewData = {
   domains: { domain: string; score: number }[];
 };
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+const fetcher = async (url: string): Promise<OverviewData> => {
+  const r = await fetch(url);
+  const json = await r.json();
+  if (!r.ok) {
+    const msg = json?.error ?? json?.details ?? r.statusText;
+    throw new Error(typeof msg === "string" ? msg : "Failed to load overview");
+  }
+  return json as OverviewData;
+};
 
 function formatPercent(change: number | null, previousScore: number | null): string {
   if (change == null || previousScore == null || previousScore === 0) return "—";
@@ -62,8 +70,10 @@ export default function Overview({ domain: domainProp }: { domain?: string | nul
   const percentLabel = formatPercent(change, previousScore);
   const hasTrend = change != null && previousScore != null && previousScore !== 0;
   const trendUp = hasTrend && (change ?? 0) >= 0;
-  const chartData = data.history.length
-    ? data.history.map((h) => ({ date: h.date, Score: h.score }))
+  const history = data.history ?? [];
+  const domains = data.domains ?? [];
+  const chartData = history.length
+    ? history.map((h) => ({ date: h.date, Score: h.score }))
     : [{ date: new Date().toISOString().slice(0, 10), Score: score }];
 
   return (
@@ -92,7 +102,7 @@ export default function Overview({ domain: domainProp }: { domain?: string | nul
             )}
           </div>
         </div>
-        {data.domains.length > 1 && (
+        {domains.length > 1 && (
           <select
             className="rounded-lg border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             value={data.domain ?? ""}
@@ -102,7 +112,7 @@ export default function Overview({ domain: domainProp }: { domain?: string | nul
               router.push(path);
             }}
           >
-            {data.domains.map((d) => (
+            {domains.map((d) => (
               <option key={d.domain} value={d.domain}>
                 {d.domain} ({d.score.toFixed(1)})
               </option>

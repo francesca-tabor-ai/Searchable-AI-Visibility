@@ -27,6 +27,12 @@ export default function DashboardLayout({
           >
             Content Performance
           </Link>
+          <Link
+            href="/dashboard/trends"
+            className="text-sm font-medium text-zinc-400 transition hover:text-white"
+          >
+            Visibility Trends
+          </Link>
         </div>
       </nav>
       {children}
