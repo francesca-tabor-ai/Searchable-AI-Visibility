@@ -47,6 +47,15 @@ function TrendsContentInner() {
   const sanitized = useMemo(() => {
     if (!rawTrends && !fetchError) return null;
     if (fetchError) return { status: "error" as const, error: (fetchError as Error).message };
+    // Prefer API error message when response is an error object (e.g. 400 "Missing required query parameter: domain")
+    const apiError =
+      rawTrends &&
+      typeof rawTrends === "object" &&
+      "error" in rawTrends &&
+      typeof (rawTrends as { error?: unknown }).error === "string"
+        ? (rawTrends as { error: string }).error
+        : null;
+    if (apiError) return { status: "error" as const, error: apiError };
     return sanitizeTrendsData(rawTrends);
   }, [rawTrends, fetchError]);
 

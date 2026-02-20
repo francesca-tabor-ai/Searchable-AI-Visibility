@@ -81,3 +81,5 @@ curl -X POST http://localhost:3000/api/ingest \
 ```
 
 Then run `npm run worker:visibility-score:once` to compute scores, or wait for the scheduled cron.
+
+For **"Missing domain"** errors and citation/data issues, see [TROUBLESHOOTING.md](./TROUBLESHOOTING.md).
