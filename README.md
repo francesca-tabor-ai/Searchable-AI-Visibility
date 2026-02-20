@@ -30,6 +30,43 @@ npm run db:push
 npm run dev
 ```
 
+### Quick start: Railway Postgres (local dev)
+
+1. **Get the public database URL from Railway**
+   - Open your **Postgres** service in Railway.
+   - Go to **Variables** or **Connect**.
+   - Copy **`DATABASE_PUBLIC_URL`** (or the URL under “Public” / “External”).  
+   - The host must look like `something.proxy.rlwy.net` — **not** `postgres.railway.internal` (that one only works inside Railway).
+
+2. **Put it in `.env.local`**
+   - In the project root, open or create `.env.local`.
+   - Add exactly one line (no spaces around `=`):
+   ```bash
+   DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@HOST:PORT/railway?sslmode=require
+   ```
+   - Replace `YOUR_PASSWORD`, `HOST`, and `PORT` with the values from the public URL you copied.  
+   - Save the file. Make sure there are no extra spaces or line breaks in the middle of the URL.
+
+3. **Create the database tables**
+   - From the project root:
+   ```bash
+   npm run db:push
+   ```
+
+4. **Optional: add sample data**
+   ```bash
+   npm run db:seed
+   ```
+
+5. **Run the app**
+   ```bash
+   npm run dev
+   ```
+   - Open [http://localhost:3000](http://localhost:3000).
+
+**If you see “Invalid URL” or “DATABASE_URL is not set”:**  
+Check that `.env.local` has a single line, no spaces around `=`, and the URL starts with `postgresql://`. For Drizzle Studio or `db:seed` from your laptop, you must use the **public** URL, not the internal one.
+
 ## API
 
 ### `POST /api/ingest`
@@ -110,8 +147,9 @@ URLs are normalized: `https`, lowercase host and path, no query params (unless a
 
 - `npm run dev` — Start dev server
 - `npm run db:push` / `npm run db:push:pg` — Push schema to PostgreSQL
+- `npm run db:seed` — Seed sample data (queries, responses, citations, visibility scores)
 - `npm run db:generate` — Generate migrations
-- `npm run db:studio` — Drizzle Studio
+- `npm run db:studio` — Drizzle Studio (use **public** `DATABASE_URL` from Railway)
 - `npm run script:url-metrics` — Populate `url_performance_metrics` from citations (requires `DATABASE_URL`)
 - `npm run worker:url-health:once` — Ping top-cited URLs once and store health in `url_health_check`
 - `npm run worker:url-health` — Same, then every 24h (set `URL_HEALTH_TOP_N` to change count, default 500)

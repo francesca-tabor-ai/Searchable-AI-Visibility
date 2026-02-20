@@ -7,7 +7,7 @@ export type ShareEntry = { name: string; value: number };
 export default function ShareOfVoiceDonut({ data }: { data: ShareEntry[] }) {
   if (data.length === 0) {
     return (
-      <div className="flex h-[240px] items-center justify-center rounded-xl border border-zinc-700/50 bg-zinc-900/50 text-zinc-500">
+      <div className="flex h-[240px] items-center justify-center rounded-searchable-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--muted)]">
         No citation share data
       </div>
     );
@@ -16,8 +16,8 @@ export default function ShareOfVoiceDonut({ data }: { data: ShareEntry[] }) {
   const chartData = data.map((d) => ({ name: d.name, share: d.value }));
 
   return (
-    <div className="rounded-xl border border-zinc-700/50 bg-zinc-900/50 p-4">
-      <p className="mb-3 text-sm font-medium text-zinc-400">Share of voice (top competitors)</p>
+    <div className="rounded-searchable-lg border border-[var(--border)] bg-[var(--surface)] p-4">
+      <p className="mb-3 text-sm font-medium text-[var(--muted)]">Share of voice (top competitors)</p>
       <DonutChart
         data={chartData}
         index="name"

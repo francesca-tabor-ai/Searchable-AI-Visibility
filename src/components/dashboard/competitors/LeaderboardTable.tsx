@@ -17,44 +17,44 @@ export default function LeaderboardTable({
   onSelectCompetitor?: (domain: string) => void;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-700/50 bg-zinc-900/50">
+    <div className="overflow-hidden rounded-searchable-lg border border-[var(--border)] bg-[var(--surface)]">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[400px] text-left text-sm">
           <thead>
-            <tr className="border-b border-zinc-700/50 bg-zinc-800/50">
-              <th className="px-4 py-3 font-semibold text-zinc-300">Rank</th>
-              <th className="px-4 py-3 font-semibold text-zinc-300">Domain</th>
-              <th className="px-4 py-3 font-semibold text-zinc-300">Visibility Score</th>
-              <th className="px-4 py-3 font-semibold text-zinc-300">Citation Share</th>
+            <tr className="border-b border-[var(--border)] bg-[var(--surface-elevated)]">
+              <th className="px-4 py-3 font-semibold text-[var(--muted)]">Rank</th>
+              <th className="px-4 py-3 font-semibold text-[var(--muted)]">Domain</th>
+              <th className="px-4 py-3 font-semibold text-[var(--muted)]">Visibility Score</th>
+              <th className="px-4 py-3 font-semibold text-[var(--muted)]">Citation Share</th>
             </tr>
           </thead>
           <tbody>
             {entries.map((e) => (
               <tr
                 key={e.domain}
-                className={`border-b border-zinc-700/30 transition ${
+                className={`border-b border-[var(--border)] transition ${
                   e.isTarget
-                    ? "bg-blue-500/10 font-medium"
+                    ? "bg-[var(--accent-soft)] font-medium"
                     : onSelectCompetitor
-                      ? "cursor-pointer hover:bg-zinc-800/70"
+                      ? "cursor-pointer hover:bg-[var(--surface-elevated)]"
                       : ""
                 } ${!e.isTarget && onSelectCompetitor ? "cursor-pointer" : ""}`}
                 onClick={() => !e.isTarget && onSelectCompetitor?.(e.domain)}
                 role={onSelectCompetitor && !e.isTarget ? "button" : undefined}
               >
-                <td className="px-4 py-3 tabular-nums text-zinc-300">{e.rank}</td>
+                <td className="px-4 py-3 tabular-nums text-[var(--muted)]">{e.rank}</td>
                 <td className="px-4 py-3">
-                  <span className={e.isTarget ? "text-blue-300" : "text-white"}>
+                  <span className={e.isTarget ? "text-[var(--accent)]" : "text-[var(--fg)]"}>
                     {e.domain}
                   </span>
                   {e.isTarget && (
-                    <span className="ml-2 text-xs text-blue-400">(you)</span>
+                    <span className="ml-2 text-xs text-[var(--accent)]">(you)</span>
                   )}
                 </td>
-                <td className="px-4 py-3 tabular-nums text-white">
+                <td className="px-4 py-3 tabular-nums text-[var(--fg)] font-medium">
                   {e.visibilityScore != null ? `${Number(e.visibilityScore).toFixed(1)}` : "—"}
                 </td>
-                <td className="px-4 py-3 tabular-nums text-zinc-300">
+                <td className="px-4 py-3 tabular-nums text-[var(--muted)]">
                   {e.shareOfVoice != null ? `${e.shareOfVoice}%` : "—"}
                 </td>
               </tr>

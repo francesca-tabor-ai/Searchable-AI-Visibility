@@ -81,6 +81,12 @@ const SEED_VISIBILITY_SCORES = [
 ];
 
 async function seed() {
+  if (!process.env.DATABASE_URL?.trim()) {
+    console.error(
+      "DATABASE_URL is not set. Add a line to .env or .env.local in the project root:\n  DATABASE_URL=postgresql://user:password@host:port/dbname?sslmode=require\nNo spaces around =. Run from project root: npm run db:seed"
+    );
+    process.exit(1);
+  }
   console.log("Seeding database...");
 
   const now = new Date();
