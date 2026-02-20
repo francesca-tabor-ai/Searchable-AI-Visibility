@@ -10,7 +10,7 @@ AI Search Visibility platform: track which sources (URLs) AI models cite for giv
 
 - **`src/`** — All app code (App Router, API routes, components, db, lib).
 - **Absolute imports** — Use `@/components/...`, `@/db/...`, `@/lib/...` (see `tsconfig.json` paths).
-- **Environment** — Copy `.env.example` to `.env` and set `DATABASE_URL`, and optionally `NEXTAUTH_SECRET`, `AI_COLLECTOR_API_KEY`. See [Deployment](#deployment).
+- **Environment** — Copy `.env.example` to `.env` and set `DATABASE_URL`, and optionally `NEXTAUTH_SECRET`, `AI_COLLECTOR_API_KEY`. For local AI API keys (OpenAI, Anthropic, etc.), copy `.env.local.example` to `.env.local` and add your keys there (`.env.local` is gitignored). See [Deployment](#deployment).
 - **Drizzle** — Schema and types in `src/db/schema.ts` (Queries, Responses, Citations, domain_visibility_scores, url_performance_metrics, etc.). Push with `npm run db:push` or `db:push:pg`.
 - **Deploy** — `deploy.sh` (or `npm run deploy`) runs schema push then build. Railway can use **`nixpacks.toml`** so the build phase runs migrations automatically.
 - **Lint** — Strict ESLint via `.eslintrc.json` (extends `next/core-web-vitals`). Run `npm run lint`. If ESLint is not installed, add `eslint` and `eslint-config-next` as dev dependencies.
@@ -22,7 +22,7 @@ AI Search Visibility platform: track which sources (URLs) AI models cite for giv
 npm install
 ```
 
-Set `DATABASE_URL` to a PostgreSQL connection string (see [Deployment](#deployment) for Railway/Neon), then:
+Set `DATABASE_URL` in `.env` (see [Deployment](#deployment) for Railway/Neon). To add AI service API keys locally, copy `.env.local.example` to `.env.local` and fill in `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `AI_COLLECTOR_API_KEY` as needed. Then:
 
 ```bash
 npm run db:push

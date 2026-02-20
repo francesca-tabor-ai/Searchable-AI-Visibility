@@ -4,6 +4,7 @@
  * Requires DATABASE_URL.
  */
 import "dotenv/config";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import {
   queries,
@@ -84,28 +85,29 @@ async function seed() {
 
   const now = new Date();
 
-  // 1. Insert queries (upsert by text to avoid duplicates)
-  const insertedQueries: { id: string; text: string }[] = [];
+  // 1. Get or create queries (by unique text)
+  const queryRows: { id: string; text: string }[] = [];
   for (const q of SEED_QUERIES) {
-    const [row] = await db
-      .insert(queries)
-      .values({ text: q.text, createdAt: now })
-      .onConflictDoNothing({ target: queries.text })
-      .returning({ id: queries.id, text: queries.text });
-    if (row) {
-      insertedQueries.push(row);
+    const existing = await db.select().from(queries).where(eq(queries.text, q.text)).limit(1);
+    if (existing[0]) {
+      queryRows.push({ id: existing[0].id, text: existing[0].text });
+    } else {
+      const [inserted] = await db
+        .insert(queries)
+        .values({ text: q.text, createdAt: now })
+        .returning({ id: queries.id, text: queries.text });
+      if (!inserted) throw new Error(`Failed to insert query: ${q.text}`);
+      queryRows.push(inserted);
     }
   }
-  console.log(`Queries: ${insertedQueries.length} inserted (duplicates skipped)`);
+  console.log(`Queries: ${queryRows.length} ready`);
 
   // 2. Insert responses and citations
   let responseCount = 0;
   let citationCount = 0;
-  for (let i = 0; i < Math.min(insertedQueries.length, SEED_RESPONSES.length); i++) {
-    const q = insertedQueries[i];
+  for (let i = 0; i < Math.min(queryRows.length, SEED_RESPONSES.length); i++) {
+    const { id: queryId } = queryRows[i];
     const res = SEED_RESPONSES[i];
-    const existing = await db.select().from(queries).where(queries.text.eq(q.text)).limit(1);
-    const queryId = existing[0]?.id ?? q.id;
 
     const [resp] = await db
       .insert(responses)
