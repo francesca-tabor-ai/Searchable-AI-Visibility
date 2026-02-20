@@ -227,154 +227,179 @@ export default function LeaderboardCard({
     return list;
   }, [debouncedQuery, scoreMin, scoreMax, citationMin, citationMax, showFilter]);
 
+  const sortLabel =
+    sortBy === "rank" && sortDir === "asc"
+      ? null
+      : sortBy === "visibilityScore"
+        ? "Ranked by Visibility Score"
+        : sortBy === "citationShare"
+          ? "Ranked by Citation Share"
+          : sortBy === "domain"
+            ? "Ranked by Domain"
+            : "Ranked by Rank";
+
+  const inputClass =
+    "h-9 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 text-sm text-[var(--fg)] placeholder:text-[var(--muted-placeholder)] focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:ring-offset-1";
+
   return (
-    <div className="flex flex-col gap-3">
-      {/* Search */}
-      <div className="flex flex-wrap items-center gap-3">
+    <div className="flex min-h-0 max-h-[min(72vh,660px)] flex-col">
+      {/* Sticky top controls */}
+      <div className="sticky top-0 z-10 -mx-1 flex flex-col gap-4 border-b border-[var(--border)] bg-[var(--surface)] px-1 pb-4">
+        {/* Search */}
         <input
           type="search"
           placeholder="Search domains…"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
-          className="h-9 min-w-[200px] max-w-xs rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 py-1.5 text-sm text-[var(--fg)] placeholder:text-[var(--muted-placeholder)] focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:ring-offset-1"
+          className={`w-full ${inputClass}`}
           aria-label="Search domains"
         />
-        {/* Quick filters row */}
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <span className="text-[var(--muted)]">Visibility Score</span>
-          <input
-            type="number"
-            min={0}
-            max={100}
-            step={0.1}
-            placeholder="Min"
-            value={scoreMin === "" ? "" : scoreMin}
-            onChange={(e) => setScoreMin(parseNum(e.target.value))}
-            className="h-8 w-16 rounded border border-[var(--border)] bg-[var(--bg)] px-2 text-[var(--fg)] focus:border-[var(--accent)] focus:outline-none"
-          />
-          <span className="text-[var(--muted)]">–</span>
-          <input
-            type="number"
-            min={0}
-            max={100}
-            step={0.1}
-            placeholder="Max"
-            value={scoreMax === "" ? "" : scoreMax}
-            onChange={(e) => setScoreMax(parseNum(e.target.value))}
-            className="h-8 w-16 rounded border border-[var(--border)] bg-[var(--bg)] px-2 text-[var(--fg)] focus:border-[var(--accent)] focus:outline-none"
-          />
-          <span className="ml-2 text-[var(--muted)]">Citation %</span>
-          <input
-            type="number"
-            min={0}
-            max={100}
-            step={0.1}
-            placeholder="Min"
-            value={citationMin === "" ? "" : citationMin}
-            onChange={(e) => setCitationMin(parseNum(e.target.value))}
-            className="h-8 w-16 rounded border border-[var(--border)] bg-[var(--bg)] px-2 text-[var(--fg)] focus:border-[var(--accent)] focus:outline-none"
-          />
-          <span className="text-[var(--muted)]">–</span>
-          <input
-            type="number"
-            min={0}
-            max={100}
-            step={0.1}
-            placeholder="Max"
-            value={citationMax === "" ? "" : citationMax}
-            onChange={(e) => setCitationMax(parseNum(e.target.value))}
-            className="h-8 w-16 rounded border border-[var(--border)] bg-[var(--bg)] px-2 text-[var(--fg)] focus:border-[var(--accent)] focus:outline-none"
-          />
-          <span className="ml-2 text-[var(--muted)]">Show</span>
+
+        {/* Filters — stacked */}
+        <div className="flex flex-col gap-3">
+          <span className="text-sm font-medium text-[var(--muted)]">Filters</span>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-[var(--muted)]">Visibility Score</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={0.1}
+                  placeholder="Min"
+                  value={scoreMin === "" ? "" : scoreMin}
+                  onChange={(e) => setScoreMin(parseNum(e.target.value))}
+                  className={inputClass}
+                />
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={0.1}
+                  placeholder="Max"
+                  value={scoreMax === "" ? "" : scoreMax}
+                  onChange={(e) => setScoreMax(parseNum(e.target.value))}
+                  className={inputClass}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-[var(--muted)]">Citation %</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={0.1}
+                  placeholder="Min"
+                  value={citationMin === "" ? "" : citationMin}
+                  onChange={(e) => setCitationMin(parseNum(e.target.value))}
+                  className={inputClass}
+                />
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={0.1}
+                  placeholder="Max"
+                  value={citationMax === "" ? "" : citationMax}
+                  onChange={(e) => setCitationMax(parseNum(e.target.value))}
+                  className={inputClass}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1 sm:col-span-2">
+              <label className="text-xs text-[var(--muted)]">Show</label>
+              <select
+                value={showFilter}
+                onChange={(e) => setShowFilter(e.target.value as ShowFilter)}
+                className={inputClass}
+              >
+                <option value="all">All</option>
+                <option value="withScore">With score</option>
+                <option value="naOnly">N/A only</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Chips + Clear all */}
+        {(chips.length > 0 || hasActiveFilters) && (
+          <div className="flex flex-wrap items-center gap-2">
+            {chips.map(({ key, label }) => (
+              <span
+                key={`${key}-${label}`}
+                className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--surface-elevated)] px-2.5 py-1 text-xs text-[var(--fg)]"
+              >
+                {label}
+                <button
+                  type="button"
+                  onClick={() => removeChip(key)}
+                  className="rounded p-0.5 hover:bg-[var(--border)]"
+                  aria-label={`Remove ${label}`}
+                >
+                  ✕
+                </button>
+              </span>
+            ))}
+            <button
+              type="button"
+              onClick={clearAllFilters}
+              className="text-xs text-[var(--muted)] underline hover:text-[var(--fg)]"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
+
+        {/* Sort */}
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-[var(--muted)]">Sort by</label>
           <select
-            value={showFilter}
-            onChange={(e) => setShowFilter(e.target.value as ShowFilter)}
-            className="h-8 rounded border border-[var(--border)] bg-[var(--bg)] px-2 text-sm text-[var(--fg)] focus:border-[var(--accent)] focus:outline-none"
+            value={`${sortBy}-${sortDir}`}
+            onChange={(e) => {
+              const [key, d] = e.target.value.split("-") as [SortKey, SortDir];
+              setSort(key, d);
+            }}
+            className={`max-w-[240px] ${inputClass}`}
           >
-            <option value="all">All</option>
-            <option value="withScore">With score</option>
-            <option value="naOnly">N/A only</option>
+            <option value="rank-asc">Rank (asc)</option>
+            <option value="rank-desc">Rank (desc)</option>
+            <option value="domain-asc">Domain (A–Z)</option>
+            <option value="domain-desc">Domain (Z–A)</option>
+            <option value="visibilityScore-desc">Visibility Score (high first)</option>
+            <option value="visibilityScore-asc">Visibility Score (low first)</option>
+            <option value="citationShare-desc">Citation Share (high first)</option>
+            <option value="citationShare-asc">Citation Share (low first)</option>
           </select>
         </div>
-      </div>
 
-      {/* Chips + Clear all */}
-      {(chips.length > 0 || hasActiveFilters) && (
-        <div className="flex flex-wrap items-center gap-2">
-          {chips.map(({ key, label }) => (
-            <span
-              key={`${key}-${label}`}
-              className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--surface-elevated)] px-2.5 py-1 text-xs text-[var(--fg)]"
-            >
-              {label}
-              <button
-                type="button"
-                onClick={() => removeChip(key)}
-                className="rounded p-0.5 hover:bg-[var(--border)]"
-                aria-label={`Remove ${label}`}
-              >
-                ✕
-              </button>
-            </span>
-          ))}
-          <button
-            type="button"
-            onClick={clearAllFilters}
-            className="text-xs text-[var(--muted)] underline hover:text-[var(--fg)]"
-          >
-            Clear all
-          </button>
-        </div>
-      )}
-
-      {/* Sort dropdown */}
-      <div className="flex items-center gap-2 text-sm">
-        <span className="text-[var(--muted)]">Sort by:</span>
-        <select
-          value={`${sortBy}-${sortDir}`}
-          onChange={(e) => {
-            const [key, d] = e.target.value.split("-") as [SortKey, SortDir];
-            setSort(key, d);
-          }}
-          className="h-8 rounded border border-[var(--border)] bg-[var(--bg)] px-2 text-[var(--fg)] focus:border-[var(--accent)] focus:outline-none"
-        >
-          <option value="rank-asc">Rank (asc)</option>
-          <option value="rank-desc">Rank (desc)</option>
-          <option value="domain-asc">Domain (A–Z)</option>
-          <option value="domain-desc">Domain (Z–A)</option>
-          <option value="visibilityScore-desc">Visibility Score (high first)</option>
-          <option value="visibilityScore-asc">Visibility Score (low first)</option>
-          <option value="citationShare-desc">Citation Share (high first)</option>
-          <option value="citationShare-asc">Citation Share (low first)</option>
-        </select>
-      </div>
-
-      {/* Summary */}
-      <p className="text-sm text-[var(--muted)]">
-        {hasActiveFilters
-          ? `Filtered to ${filteredCount} of ${totalCount} competitors`
-          : `Showing ${totalCount} of ${totalCount} competitors`}
-      </p>
-
-      {/* Empty state */}
-      {filteredCount === 0 && (
-        <p className="rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] p-4 text-sm text-[var(--muted)]">
-          {debouncedQuery.trim()
-            ? `No competitors match "${debouncedQuery.trim()}". Clear search`
-            : "No competitors match the current filters. Clear filters."}
+        {/* Results count + optional ranked by */}
+        <p className="text-sm text-[var(--muted)]">
+          {hasActiveFilters
+            ? `Showing ${filteredCount} of ${totalCount} competitors`
+            : `Showing ${filteredCount} competitor${filteredCount === 1 ? "" : "s"}`}
+          {sortLabel && <span className="block text-xs text-[var(--muted-placeholder)]">{sortLabel}</span>}
         </p>
-      )}
+      </div>
 
-      {/* Table */}
-      {filteredCount > 0 && (
-        <LeaderboardTable
-          entries={sorted}
-          onSelectCompetitor={onSelectCompetitor}
-          sortBy={sortBy}
-          sortDir={sortDir}
-          onSortChange={setSort}
-        />
-      )}
+      {/* Scrollable list */}
+      <div className="min-h-0 flex-1 overflow-y-auto pt-4">
+        {filteredCount === 0 && (
+          <p className="rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] p-5 text-sm text-[var(--muted)]">
+            {debouncedQuery.trim()
+              ? `No competitors match "${debouncedQuery.trim()}". Clear search or filters.`
+              : "No competitors match the current filters. Clear filters."}
+          </p>
+        )}
+        {filteredCount > 0 && (
+          <LeaderboardTable
+            entries={sorted}
+            onSelectCompetitor={onSelectCompetitor}
+          />
+        )}
+      </div>
     </div>
   );
 }
