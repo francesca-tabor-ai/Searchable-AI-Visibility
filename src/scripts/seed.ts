@@ -15,6 +15,7 @@ import {
   urlCanonicalMapping,
   urlHealthCheck,
 } from "@/db/schema";
+import { refreshCompetitorMetrics } from "@/lib/competitors/refresh";
 
 const SEED_QUERIES = [
   { text: "best running shoes 2024" },
@@ -237,6 +238,13 @@ async function seed() {
       });
   }
   console.log(`URL health checks: ${SEED_HEALTH_CHECK_URLS.length} upserted`);
+
+  // 7. Populate competitor_metrics (overlap competitors per domain) so trends "top 2 competitors" and leaderboard work
+  console.log("Refreshing competitor_metrics...");
+  const compResults = await refreshCompetitorMetrics();
+  for (const r of compResults) {
+    console.log(`  ${r.targetDomain}: ${r.competitors} competitors`);
+  }
 
   console.log("Seed complete.");
 }

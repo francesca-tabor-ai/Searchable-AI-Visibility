@@ -7,7 +7,8 @@ import { computeCompetitorMetrics } from "@/lib/competitors/discovery";
 
 export const dynamic = "force-dynamic";
 
-const TOP_N = 5;
+/** Return full leaderboard; client handles search/filter/sort. */
+const MAX_ENTRIES = 500;
 
 /**
  * GET /api/competitors/leaderboard?domain=target.com
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
       .from(competitorMetrics)
       .where(eq(competitorMetrics.targetDomain, domain))
       .orderBy(asc(competitorMetrics.competitorRank))
-      .limit(TOP_N);
+      .limit(MAX_ENTRIES);
 
     let competitors: {
       domain: string;
@@ -80,7 +81,7 @@ export async function GET(request: NextRequest) {
       }));
     } else {
       const computed = await computeCompetitorMetrics(domain);
-      competitors = computed.slice(0, TOP_N).map((r, i) => ({
+      competitors = computed.slice(0, MAX_ENTRIES).map((r, i) => ({
         domain: r.competitor_domain,
         visibilityScore: r.competitor_visibility_score,
         shareOfVoice: Math.round(r.share_of_voice * 100 * 10) / 10,

@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
           (computed_at AT TIME ZONE 'UTC')::date AS day,
           (array_agg(score ORDER BY computed_at DESC))[1]::double precision AS score
         FROM domain_visibility_score_history
-        WHERE domain = ANY(${domainsToFetch})
+        WHERE domain IN (${sql.join(domainsToFetch.map((d) => sql`${d}`), sql`, `)})
           AND computed_at >= ${since}
         GROUP BY domain, (computed_at AT TIME ZONE 'UTC')::date
       ),

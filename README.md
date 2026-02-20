@@ -37,14 +37,14 @@ Searchable is **“AI search visibility”** — the place to measure, benchmark
 If the dashboard, **Visibility trends**, Competitive Analysis, or Content performance shows **“No domains with visibility data”** or **“Ingest some citations first”**, run these in order from the project root (with `DATABASE_URL` in `.env.local`):
 
 ```bash
-# 1. Seed queries, responses, citations, and visibility scores (required for all views)
+# 1. Seed queries, responses, citations, visibility scores, and competitor_metrics
 npm run db:seed
 
 # 2. Populate URL-level metrics (required for Content performance / URL leaderboard)
 npm run script:url-metrics
 ```
 
-Then refresh the app. To fill **competitor_metrics** (Visibility trends “top 2 competitors”, competitor leaderboard), run:
+Then refresh the app. **competitor_metrics** is now populated by `db:seed`; use `script:competitors-refresh` only to refresh after adding data via ingest. To fill **competitor_metrics** (Visibility trends “top 2 competitors”, competitor leaderboard), run:
 
 ```bash
 npm run script:competitors-refresh
