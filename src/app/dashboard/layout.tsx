@@ -21,6 +21,12 @@ export default function DashboardLayout({
           >
             Competitive Analysis
           </Link>
+          <Link
+            href="/dashboard/content"
+            className="text-sm font-medium text-zinc-400 transition hover:text-white"
+          >
+            Content Performance
+          </Link>
         </div>
       </nav>
       {children}

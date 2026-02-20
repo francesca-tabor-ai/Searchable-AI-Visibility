@@ -110,6 +110,51 @@ If the MV does not exist yet, the refresh step is skipped and the response inclu
 
 ---
 
+## Railway: URL performance metrics (high-cardinality)
+
+The **`url_performance_metrics`** table can grow to millions of rows (one per normalized URL). Configure for scale and freshness:
+
+### Indexes
+
+- **`(domain)`** — `url_performance_metrics_domain_idx` for filtering by domain.
+- **`(domain, citation_count)`** — **`url_performance_metrics_domain_citation_idx`** (B-tree). Use this for list/leaderboard queries (e.g. top performers by domain, paginated).
+
+### last_cited_at
+
+The table includes **`last_cited_at`** (max citation time per URL). Use it to spot decaying content: URLs with high `citation_count` but old `last_cited_at` may need updates or redirects. The aggregation script (`npm run script:url-metrics`) populates this from `citations.created_at`.
+
+### URL health-check worker (optional)
+
+A **Railway Worker** can periodically ping top-cited URLs to detect 404s and broken links:
+
+- **Command (once):** `npm run worker:url-health:once` — checks top N URLs (default 500), stores result in **`url_health_check`** (normalized_url, last_checked_at, status_code, is_ok).
+- **Command (interval):** `npm run worker:url-health` — runs once, then every 24h.
+- **Variable:** `URL_HEALTH_TOP_N` — number of URLs to check (default 500). Increase for broader coverage; lower to reduce run time and outbound traffic.
+
+Use **Railway Cron** (e.g. daily) with `worker:url-health:once`, or a long-running service with `worker:url-health`. Same `DATABASE_URL` as the main app. Logs: `url_health_start`, `url_health_success` (checked, ok, failed), `url_health_failure` (error).
+
+---
+
+## Storage optimization: historical URL metrics (DuckDB / R2 Parquet)
+
+If Postgres storage on Railway becomes expensive (e.g. millions of rows in `url_performance_metrics`), move **historical** URL daily metrics out of Postgres:
+
+1. **Export to Parquet**
+   - Run a daily (or weekly) job that queries `url_performance_metrics` (or a snapshot table) and exports to Parquet (e.g. one file per day: `url_metrics_YYYY-MM-DD.parquet`).
+   - Use **DuckDB** (Node: `duckdb` or CLI) to `COPY (SELECT ... FROM url_performance_metrics) TO 'file.parquet'`, or a Parquet library (e.g. `parquetjs`) to write from Node.
+
+2. **Upload to Cloudflare R2 (or S3)**
+   - Upload the Parquet files to **Cloudflare R2** (or S3) for cheap, durable storage. Use the R2 API or AWS SDK with R2-compatible endpoint.
+
+3. **Retain hot data in Postgres**
+   - Keep the last N days (e.g. 30–90) in `url_performance_metrics`; drop or archive older rows after export so Postgres stays within budget.
+   - Optionally add an **`url_performance_metrics_history`** table that you truncate/archive after exporting, and refill from the latest aggregation run.
+
+4. **Querying history**
+   - For analytics over long windows, query Parquet via DuckDB (local or in-process) or a warehouse (BigQuery, Snowflake) that can read from R2/S3. The codebase does not include the export/upload pipeline; add it when you need to reduce Postgres storage.
+
+---
+
 ## Alternative: Upstash Redis for overlap (SINTER)
 
 If the overlap logic (finding domains that share queries with a target) is too slow on Postgres, you can use **Upstash Redis** (or any Redis) to store **sets of `query_id` per domain** and use **`SINTER`** (set intersection) to find overlapping query IDs:
@@ -153,11 +198,12 @@ For high volume, you can process citation extraction asynchronously via a queue 
 
 ## Environment summary
 
-| Variable        | Required | Description                                      |
-|----------------|----------|--------------------------------------------------|
-| `DATABASE_URL` | Yes      | PostgreSQL connection string (Railway or Neon). Required at runtime; for CI builds without a DB, set any placeholder (e.g. `postgresql://localhost:5432/dummy`) so the app builds. |
-| `REDIS_URL`    | No       | Redis URL if using a queue; health check reports status. |
-| `PORT`         | Set by Railway | Next.js listens on `PORT` in production.   |
+| Variable           | Required | Description                                      |
+|--------------------|----------|--------------------------------------------------|
+| `DATABASE_URL`     | Yes      | PostgreSQL connection string (Railway or Neon). Required at runtime; for CI builds without a DB, set any placeholder (e.g. `postgresql://localhost:5432/dummy`) so the app builds. |
+| `REDIS_URL`        | No       | Redis URL if using a queue; health check reports status. |
+| `URL_HEALTH_TOP_N` | No       | Number of top-cited URLs to check in the URL health worker (default 500). |
+| `PORT`             | Set by Railway | Next.js listens on `PORT` in production.   |
 
 ---
 

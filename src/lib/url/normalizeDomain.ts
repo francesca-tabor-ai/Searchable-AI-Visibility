@@ -30,11 +30,18 @@ export function normalizeDomain(urlInput: string): string {
   }
 }
 
+export type NormalizeUrlOptions = {
+  /**
+   * Query param keys to keep (e.g. ["ref"]). By default all query params are removed.
+   */
+  keepQueryParams?: string[];
+};
+
 /**
- * Normalize URL: ensure https and strip trailing slashes for consistency.
- * Does not change path; only scheme and basic validity.
+ * Normalize URL: https, lowercase host + path, strip trailing slash, remove query params (unless kept).
+ * Example: https://Nike.com/Running?utm=123/ -> https://nike.com/running
  */
-export function normalizeUrl(urlInput: string): string {
+export function normalizeUrl(urlInput: string, options?: NormalizeUrlOptions): string {
   const trimmed = urlInput.trim();
   if (!trimmed) {
     throw new UrlNormalizationError("Empty URL", urlInput);
@@ -58,7 +65,25 @@ export function normalizeUrl(urlInput: string): string {
     const parsed = new URL(href);
     parsed.protocol = "https:";
     if (parsed.port === "443") parsed.port = "";
-    return parsed.toString().replace(/\/$/, "") || parsed.origin;
+
+    const keepKeys = options?.keepQueryParams;
+    if (keepKeys?.length) {
+      const nextSearch = new URLSearchParams();
+      for (const key of keepKeys) {
+        const v = parsed.searchParams.get(key);
+        if (v != null) nextSearch.set(key, v);
+      }
+      parsed.search = nextSearch.toString();
+    } else {
+      parsed.search = "";
+    }
+
+    const path = (parsed.pathname.replace(/\/+$/, "") || "/").toLowerCase();
+    const host = parsed.hostname.toLowerCase();
+    const origin = `https://${host}${parsed.port ? ":" + parsed.port : ""}`;
+    const pathPart = path === "/" ? "" : path;
+    const queryPart = parsed.search ? parsed.search : "";
+    return `${origin}${pathPart}${queryPart}`;
   } catch {
     throw new UrlNormalizationError("Malformed URL", urlInput);
   }

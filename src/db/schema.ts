@@ -128,5 +128,55 @@ export type DomainVisibilityScore = typeof domainVisibilityScores.$inferSelect;
 export type NewDomainVisibilityScore = typeof domainVisibilityScores.$inferInsert;
 export type DomainVisibilityScoreHistory = typeof domainVisibilityScoreHistory.$inferSelect;
 export type NewDomainVisibilityScoreHistory = typeof domainVisibilityScoreHistory.$inferInsert;
+/**
+ * URL-level performance metrics (content attribution).
+ * Populated by aggregation script; citation_count, unique_query_count, avg_position, last_cited_at per normalized URL.
+ * High-cardinality: B-tree index on (domain, citation_count) for list/leaderboard queries.
+ */
+export const urlPerformanceMetrics = pgTable(
+  "url_performance_metrics",
+  {
+    normalizedUrl: text("normalized_url").primaryKey(),
+    domain: text("domain").notNull(),
+    citationCount: integer("citation_count").notNull().default(0),
+    uniqueQueryCount: integer("unique_query_count").notNull().default(0),
+    avgPosition: doublePrecision("avg_position"),
+    lastCitedAt: timestamp("last_cited_at", { withTimezone: true }),
+    computedAt: timestamp("computed_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    urlPerformanceMetricsDomainIdx: index("url_performance_metrics_domain_idx").on(table.domain),
+    urlPerformanceMetricsDomainCitationIdx: index("url_performance_metrics_domain_citation_idx").on(
+      table.domain,
+      table.citationCount
+    ),
+  })
+);
+
+/**
+ * Optional: canonical URL mapping for redirects / duplicate content.
+ * from_url -> to_url (canonical). Used to group or flag URLs that cite the same content.
+ */
+export const urlCanonicalMapping = pgTable("url_canonical_mapping", {
+  fromUrl: text("from_url").primaryKey(),
+  toUrl: text("to_url").notNull(),
+});
+
+/**
+ * Result of pinging a URL (Railway worker). Used to detect 404s / decaying content on top-cited URLs.
+ */
+export const urlHealthCheck = pgTable("url_health_check", {
+  normalizedUrl: text("normalized_url").primaryKey(),
+  lastCheckedAt: timestamp("last_checked_at", { withTimezone: true }).notNull().defaultNow(),
+  statusCode: integer("status_code"),
+  isOk: integer("is_ok").notNull(), // 1 = ok (2xx/3xx), 0 = error (4xx/5xx/timeout)
+});
+
 export type CompetitorMetric = typeof competitorMetrics.$inferSelect;
 export type NewCompetitorMetric = typeof competitorMetrics.$inferInsert;
+export type UrlPerformanceMetric = typeof urlPerformanceMetrics.$inferSelect;
+export type NewUrlPerformanceMetric = typeof urlPerformanceMetrics.$inferInsert;
+export type UrlCanonicalMapping = typeof urlCanonicalMapping.$inferSelect;
+export type NewUrlCanonicalMapping = typeof urlCanonicalMapping.$inferInsert;
+export type UrlHealthCheck = typeof urlHealthCheck.$inferSelect;
+export type NewUrlHealthCheck = typeof urlHealthCheck.$inferInsert;

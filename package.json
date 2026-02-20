@@ -13,10 +13,15 @@
     "db:push:pg": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "worker:visibility-score": "tsx src/worker/visibility-score.ts",
-    "worker:visibility-score:once": "tsx src/worker/visibility-score.ts --once"
+    "worker:visibility-score:once": "tsx src/worker/visibility-score.ts --once",
+    "script:url-metrics": "tsx src/scripts/populate-url-performance-metrics.ts",
+    "worker:url-health": "tsx src/worker/url-health.ts",
+    "worker:url-health:once": "tsx src/worker/url-health.ts --once"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.0",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@tanstack/react-table": "^8.21.3",
     "@tremor/react": "^3.18.7",
     "@vercel/analytics": "^1.4.0",
     "autoprefixer": "^10.4.24",
