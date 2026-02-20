@@ -69,6 +69,62 @@ The current codebase does not include the queue producer/consumer; add it when y
 
 ---
 
+## Railway: High-performance aggregation (PostgreSQL)
+
+Heavy competitor-overlap and visibility logic use JOINs on `citations` and `responses`. The following keep the Railway Postgres instance fast:
+
+### Indexes
+
+- **`citations(domain)`** — `citations_domain_idx` (already in schema).
+- **`citations(domain, query_id)`** — **`idx_citations_domain_query`** for overlap lookups. The schema denormalizes `query_id` on `citations` (set on ingest) so this composite index can be used without joining to `responses` for domain+query filters.
+- **`responses(query_id)`** — `responses_query_id_idx` (already in schema).
+
+After adding the `query_id` column to `citations`, backfill existing rows and then push schema:
+
+```bash
+# After db:push, backfill so the composite index is effective:
+psql "$DATABASE_URL" -f scripts/backfill-citations-query-id.sql
+```
+
+### Materialized view (competitor leaderboard)
+
+A materialized view stores a snapshot of the competitor leaderboard for fast reads and avoids re-running heavy JOINs on every request:
+
+1. **Create once** (after `competitor_metrics` exists):
+
+   ```bash
+   psql "$DATABASE_URL" -f scripts/create-competitor-leaderboard-mv.sql
+   ```
+
+2. **Refresh daily** (e.g. after the competitor refresh cron): the app runs `REFRESH MATERIALIZED VIEW CONCURRENTLY competitor_leaderboard` at the end of `POST /api/competitors/refresh`. So if you run competitor refresh daily, the MV is refreshed in the same run.
+
+If the MV does not exist yet, the refresh step is skipped and the response includes `leaderboardMV: { refreshed: false, error: "..." }`. Reads still use `competitor_metrics` until the MV is created.
+
+### Monitoring (Railway Metrics)
+
+- In Railway, open the **Metrics** tab for the Postgres (and app) service.
+- During **aggregation** (visibility score cron, competitor refresh), watch for **CPU and memory** spikes. If they stay high or time out:
+  - Ensure the indexes above exist and that `citations.query_id` is backfilled.
+  - Consider refreshing the competitor leaderboard MV only (read from MV) and running the full competitor discovery less often.
+  - Consider the Redis overlap alternative below.
+
+---
+
+## Alternative: Upstash Redis for overlap (SINTER)
+
+If the overlap logic (finding domains that share queries with a target) is too slow on Postgres, you can use **Upstash Redis** (or any Redis) to store **sets of `query_id` per domain** and use **`SINTER`** (set intersection) to find overlapping query IDs:
+
+1. **Key pattern:** `domain:query_ids:{domain}` — a SET of query IDs where that domain was cited.
+2. **On ingest (or in a batch job):** for each citation, `SADD domain:query_ids:{domain} {query_id}`.
+3. **Overlap:** for target `T` and candidate `C`, `SINTER domain:query_ids:{T} domain:query_ids:{C}` gives shared query IDs; `SCARD` of the result = shared_queries. Repeat for all candidate domains (or maintain a list of domains and iterate).
+4. **Total queries for target:** `SCARD domain:query_ids:{T}` = total_queries_for_target.
+
+Then compute **overlap_score = shared_queries / total_queries_for_target** in the app. Visibility score and rank can still come from Postgres (`domain_visibility_scores`). This moves the heavy overlap work to Redis and keeps Postgres for durable storage and visibility scores.
+
+The codebase does not implement this path yet; add it when you need to scale overlap discovery.
+
+---
+
 ## Free tier: Neon (PostgreSQL)
 
 Use [Neon.tech](https://neon.tech) for PostgreSQL when you want a free tier (e.g. 0.5 GiB storage, unlimited databases).

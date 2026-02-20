@@ -5,6 +5,8 @@ import {
   timestamp,
   unique,
   doublePrecision,
+  index,
+  integer,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -24,19 +26,24 @@ export const queries = pgTable(
 /**
  * A single AI model response (raw text) for a given query.
  */
-export const responses = pgTable("responses", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  queryId: uuid("query_id")
-    .notNull()
-    .references(() => queries.id, { onDelete: "cascade" }),
-  model: text("model").notNull(),
-  rawText: text("raw_text").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const responses = pgTable(
+  "responses",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    queryId: uuid("query_id")
+      .notNull()
+      .references(() => queries.id, { onDelete: "cascade" }),
+    model: text("model").notNull(),
+    rawText: text("raw_text").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({ responsesQueryIdIdx: index("responses_query_id_idx").on(table.queryId) })
+);
 
 /**
  * Extracted citation (URL) from a response.
  * Unique per (response_id, normalized url) to avoid duplicates.
+ * query_id is denormalized from responses for fast (domain, query_id) index on overlap queries.
  */
 export const citations = pgTable(
   "citations",
@@ -45,6 +52,7 @@ export const citations = pgTable(
     responseId: uuid("response_id")
       .notNull()
       .references(() => responses.id, { onDelete: "cascade" }),
+    queryId: uuid("query_id").references(() => queries.id, { onDelete: "cascade" }),
     url: text("url").notNull(),
     domain: text("domain").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -54,6 +62,8 @@ export const citations = pgTable(
       table.responseId,
       table.url
     ),
+    citationsDomainIdx: index("citations_domain_idx").on(table.domain),
+    citationsDomainQueryIdx: index("idx_citations_domain_query").on(table.domain, table.queryId),
   })
 );
 
@@ -79,6 +89,35 @@ export const domainVisibilityScoreHistory = pgTable("domain_visibility_score_his
   computedAt: timestamp("computed_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/**
+ * Pre-aggregated competitor metrics for fast dashboard access.
+ * overlap_score = shared_queries / total_queries_for_target.
+ * competitor_rank = RANK() by visibility_score among overlap domains.
+ */
+export const competitorMetrics = pgTable(
+  "competitor_metrics",
+  {
+    targetDomain: text("target_domain").notNull(),
+    competitorDomain: text("competitor_domain").notNull(),
+    overlapScore: doublePrecision("overlap_score").notNull(),
+    sharedQueries: integer("shared_queries").notNull(),
+    totalQueriesTarget: integer("total_queries_target").notNull(),
+    competitorVisibilityScore: doublePrecision("competitor_visibility_score"),
+    competitorRank: doublePrecision("competitor_rank"),
+    shareOfVoice: doublePrecision("share_of_voice"),
+    computedAt: timestamp("computed_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    competitorMetricsTargetCompetitor: unique("competitor_metrics_target_competitor").on(
+      table.targetDomain,
+      table.competitorDomain
+    ),
+    competitorMetricsTargetDomainIdx: index("competitor_metrics_target_domain_idx").on(
+      table.targetDomain
+    ),
+  })
+);
+
 export type Query = typeof queries.$inferSelect;
 export type NewQuery = typeof queries.$inferInsert;
 export type Response = typeof responses.$inferSelect;
@@ -89,3 +128,5 @@ export type DomainVisibilityScore = typeof domainVisibilityScores.$inferSelect;
 export type NewDomainVisibilityScore = typeof domainVisibilityScores.$inferInsert;
 export type DomainVisibilityScoreHistory = typeof domainVisibilityScoreHistory.$inferSelect;
 export type NewDomainVisibilityScoreHistory = typeof domainVisibilityScoreHistory.$inferInsert;
+export type CompetitorMetric = typeof competitorMetrics.$inferSelect;
+export type NewCompetitorMetric = typeof competitorMetrics.$inferInsert;

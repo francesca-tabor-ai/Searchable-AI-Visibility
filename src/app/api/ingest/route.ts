@@ -87,6 +87,7 @@ export async function POST(request: NextRequest) {
           await tx.insert(citations).values({
             id: randomId(),
             responseId,
+            queryId,
             url,
             domain,
             createdAt: now,

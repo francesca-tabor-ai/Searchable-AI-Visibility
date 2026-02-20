@@ -72,6 +72,12 @@ Health check for deployments (e.g. Railway). Returns `200` when the database is 
 - **Dashboard:** **`/dashboard`** — Overview component: large Visibility Score (0–100), trend indicator (+/− % in green/red), 30-day sparkline (Tremor), and domain selector. Data via SWR with 1-hour revalidation.
 - **Cron:** `GET /api/cron/visibility-score` runs every 24h (e.g. Vercel Cron). On **Railway**, use the standalone worker: `npm run worker:visibility-score:once` (Cron) or `npm run worker:visibility-score` (long-running). Same `DATABASE_URL`; logs start, duration, and success/failure. See [DEPLOYMENT.md](./DEPLOYMENT.md#railway-visibility-score-worker-scheduled-job).
 
+### Competitive Benchmarking
+
+- **`GET /api/competitors?domain=target.com`** — Top 5 overlap competitors (domains cited in the same queries as the target), ranked by Visibility Score. Returns `visibilityScore`, `overlapPercent` (shared_queries / total_queries_for_target), `shareOfVoice` (citation share in overlapping queries), and `rank`. Data is read from pre-aggregated `competitor_metrics` when present; otherwise computed on the fly.
+- **`GET /api/competitors/compare?domain=...&competitor=...&query_id=...`** — Query-level comparison: for the given query, returns side-by-side `rankInQuery` and `citationCount` for target and competitor (logical view over citations + queries).
+- **Pre-aggregation:** `POST /api/competitors/refresh` (optional body: `{ "domain": "target.com" }`) populates `competitor_metrics` for fast dashboard access. Secure with `CRON_SECRET` when used from a cron. Indexes on `citations(domain)` and `responses(query_id)` optimize the discovery query.
+
 ## Citation extraction
 
 - **Inline links:** `[Source](https://example.com)`
