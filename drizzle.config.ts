@@ -18,5 +18,9 @@ export default defineConfig({
   schema: "./src/db/schema.ts",
   out: "./drizzle",
   dialect: "postgresql",
-  dbCredentials: { url },
+  dbCredentials: {
+    url,
+    // Railway's public proxy uses a cert that may be self-signed; allow for local/drizzle-kit
+    ssl: { rejectUnauthorized: false },
+  },
 });

@@ -24,7 +24,14 @@ function getDb(): NodeDb {
         "DATABASE_URL is not a valid URL. Remove any trailing spaces/newlines in .env.local and ensure special characters in the password are percent-encoded (e.g. @ → %40)."
       );
     }
-    _db = drizzle(new Pool({ connectionString }), { schema });
+    _db = drizzle(
+      new Pool({
+        connectionString,
+        // Railway's public proxy cert may be self-signed; allow when connecting from local
+        ssl: { rejectUnauthorized: false },
+      }),
+      { schema }
+    );
   }
   return _db;
 }
