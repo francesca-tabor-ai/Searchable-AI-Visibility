@@ -67,12 +67,12 @@ export default function PerformanceDistribution({
   }, [pages]);
 
   return (
-    <div className="rounded-xl border border-zinc-700/50 bg-zinc-900/50 p-4">
-      <p className="mb-2 text-sm font-medium text-zinc-400">Concentration</p>
+    <div className="rounded-searchable-lg border border-[var(--border)] bg-[var(--surface)] p-4">
+      <p className="mb-2 text-sm font-medium text-[var(--muted)]">Concentration</p>
       {summary != null && (
-        <p className="mb-4 text-sm text-zinc-300">
-          <span className="font-semibold text-white">{summary.pagePct}%</span> of your pages
-          drive <span className="font-semibold text-white">{summary.citationPct}%</span> of AI
+        <p className="mb-4 text-sm text-[var(--fg)] leading-relaxed">
+          <span className="font-semibold text-[var(--fg)]">{summary.pagePct}%</span> of your pages
+          drive <span className="font-semibold text-[var(--fg)]">{summary.citationPct}%</span> of AI
           citations.
         </p>
       )}

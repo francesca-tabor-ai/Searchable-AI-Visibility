@@ -1,5 +1,9 @@
 import "dotenv/config";
+import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
+
+// Load .env.local so Next.js env and db:push both see DATABASE_URL
+config({ path: ".env.local" });
 
 const url = process.env.DATABASE_URL;
 if (!url?.trim()) {

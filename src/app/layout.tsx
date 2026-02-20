@@ -1,8 +1,9 @@
-import { Inter } from "next/font/google";
+import { Source_Sans_3 } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
+import ChatWidget from "@/components/ChatWidget";
 import "./globals.css";
 
-const inter = Inter({
+const sourceSans = Source_Sans_3({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
@@ -19,9 +20,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={sourceSans.variable}>
       <body>
         {children}
+        <ChatWidget />
         <Analytics />
       </body>
     </html>

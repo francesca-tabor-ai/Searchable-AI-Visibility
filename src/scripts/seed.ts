@@ -1,9 +1,9 @@
 /**
  * Seed the database with sample queries, responses, citations, and visibility scores.
  * Run: npm run db:seed  (or npx tsx src/scripts/seed.ts)
- * Requires DATABASE_URL.
+ * Requires DATABASE_URL in .env or .env.local.
  */
-import "dotenv/config";
+import "./load-env";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import {

@@ -34,7 +34,7 @@ function CopyButton({ url }: { url: string }) {
     <button
       type="button"
       onClick={(e) => { e.stopPropagation(); copy(); }}
-      className="rounded p-1.5 text-zinc-400 hover:bg-zinc-700 hover:text-white focus:outline-none focus:ring-1 focus:ring-zinc-500"
+      className="rounded p-1.5 text-[var(--muted)] hover:bg-[var(--surface-elevated)] hover:text-[var(--fg)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
       title="Copy URL"
       aria-label="Copy URL"
     >
@@ -50,7 +50,7 @@ function LinkButton({ url }: { url: string }) {
       target="_blank"
       rel="noopener noreferrer"
       onClick={(e) => e.stopPropagation()}
-      className="rounded p-1.5 text-zinc-400 hover:bg-zinc-700 hover:text-white focus:outline-none focus:ring-1 focus:ring-zinc-500"
+      className="rounded p-1.5 text-[var(--muted)] hover:bg-[var(--surface-elevated)] hover:text-[var(--fg)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
       title="Open in new tab"
       aria-label="Open URL"
     >
@@ -93,19 +93,19 @@ export default function UrlLeaderboard({
       columnHelper.accessor("domain", {
         header: "Domain",
         cell: (info) => (
-          <span className="text-zinc-300">{info.getValue()}</span>
+          <span className="text-[var(--fg)]">{info.getValue()}</span>
         ),
       }),
       columnHelper.accessor("citationCount", {
         header: "Citations",
         cell: (info) => (
-          <span className="tabular-nums text-white">{info.getValue()}</span>
+          <span className="tabular-nums text-[var(--fg)] font-medium">{info.getValue()}</span>
         ),
       }),
       columnHelper.accessor("uniqueQueryCount", {
         header: "Queries",
         cell: (info) => (
-          <span className="tabular-nums text-zinc-300">{info.getValue()}</span>
+          <span className="tabular-nums text-[var(--fg)]">{info.getValue()}</span>
         ),
       }),
       columnHelper.accessor("avgPosition", {
@@ -113,7 +113,7 @@ export default function UrlLeaderboard({
         cell: (info) => {
           const v = info.getValue();
           return (
-            <span className="tabular-nums text-zinc-400">
+            <span className="tabular-nums text-[var(--muted)]">
               {v != null ? v.toFixed(1) : "-"}
             </span>
           );
@@ -123,16 +123,16 @@ export default function UrlLeaderboard({
         header: "Last cited",
         cell: (info) => {
           const v = info.getValue();
-          if (!v) return <span className="text-zinc-500">-</span>;
+          if (!v) return <span className="text-[var(--muted)]">-</span>;
           try {
             const d = new Date(v);
             return (
-              <span className="text-zinc-400" title={d.toISOString()}>
+              <span className="text-[var(--muted)]" title={d.toISOString()}>
                 {d.toLocaleDateString()}
               </span>
             );
           } catch {
-            return <span className="text-zinc-500">-</span>;
+            return <span className="text-[var(--muted)]">-</span>;
           }
         },
       }),
@@ -143,7 +143,7 @@ export default function UrlLeaderboard({
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); onRowClick(row.original.url); }}
-            className="rounded px-2 py-1 text-xs font-medium text-blue-400 hover:bg-blue-500/20 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="rounded px-2 py-1 text-xs font-medium text-[var(--accent)] hover:bg-[var(--accent-soft)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
           >
             Queries
           </button>
@@ -166,16 +166,16 @@ export default function UrlLeaderboard({
   });
 
   return (
-    <div className="rounded-xl border border-zinc-700/50 bg-zinc-900/50">
-      <div className="flex items-center gap-4 border-b border-zinc-700/50 p-3">
+    <div className="rounded-searchable-lg border border-[var(--border)] bg-[var(--surface)]">
+      <div className="flex items-center gap-4 border-b border-[var(--border)] p-3">
         <input
           type="text"
           placeholder="Search URLs…"
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
-          className="rounded-lg border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="rounded-searchable border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-sm text-[var(--fg)] placeholder-[var(--muted)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
         />
-        <span className="text-xs text-zinc-500">
+        <span className="text-xs text-[var(--muted)]">
           {table.getFilteredRowModel().rows.length} row(s)
         </span>
       </div>
@@ -183,11 +183,11 @@ export default function UrlLeaderboard({
         <table className="w-full min-w-[700px] text-left text-sm">
           <thead>
             {table.getHeaderGroups().map((hg) => (
-              <tr key={hg.id} className="border-b border-zinc-700/50 bg-zinc-800/50">
+              <tr key={hg.id} className="border-b border-[var(--border)] bg-[var(--surface-elevated)]">
                 {hg.headers.map((h) => (
                   <th
                     key={h.id}
-                    className="px-4 py-3 font-semibold text-zinc-300"
+                    className="px-4 py-3 font-semibold text-[var(--muted)]"
                     style={{ width: h.getSize() !== 150 ? undefined : h.getSize() }}
                   >
                     <div
@@ -210,7 +210,7 @@ export default function UrlLeaderboard({
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                className="cursor-pointer border-b border-zinc-700/30 hover:bg-zinc-800/70"
+                className="cursor-pointer border-b border-[var(--border)] hover:bg-[var(--surface-elevated)]"
                 onClick={() => onRowClick(row.original.url)}
               >
                 {row.getVisibleCells().map((cell) => (

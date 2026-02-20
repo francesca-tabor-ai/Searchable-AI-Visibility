@@ -67,19 +67,19 @@ function ContentPerformanceContent() {
   return (
     <main className="p-6 md:p-8">
       <header className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-white">
-          Content Performance
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--fg)]">
+          Content performance
         </h1>
-        <p className="mt-1 text-sm text-zinc-400">
+        <p className="mt-1 text-sm text-[var(--muted)] leading-relaxed">
           URL leaderboard, citation concentration, and query context · Audit tool
         </p>
       </header>
 
       {overview?.domains && overview.domains.length > 1 && (
         <div className="mb-6">
-          <label className="text-sm text-zinc-400">Domain </label>
+          <label className="text-sm text-[var(--muted)]">Domain </label>
           <select
-            className="ml-2 rounded-lg border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="ml-2 rounded-searchable border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-sm text-[var(--fg)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
             value={domain}
             onChange={(e) => {
               const next = e.target.value;
@@ -100,19 +100,19 @@ function ContentPerformanceContent() {
       )}
 
       {!domain && (
-        <div className="rounded-xl border border-zinc-700/50 bg-zinc-900/50 p-8 text-center text-zinc-500">
+        <div className="rounded-searchable-lg border border-[var(--border)] bg-[var(--surface)] p-8 text-center text-[var(--muted)]">
           No domains with visibility data. Ingest citations and run URL metrics first.
         </div>
       )}
 
       {domain && isLoading && (
-        <div className="rounded-xl border border-zinc-700/50 bg-zinc-900/50 p-8">
-          <div className="h-48 animate-pulse rounded bg-zinc-800" />
+        <div className="rounded-searchable-lg border border-[var(--border)] bg-[var(--surface)] p-8">
+          <div className="h-48 animate-pulse rounded-lg bg-[var(--surface-elevated)]" />
         </div>
       )}
 
       {domain && error && (
-        <div className="rounded-xl border border-red-500/30 bg-red-950/20 p-6 text-red-400">
+        <div className="rounded-searchable-lg border border-[var(--danger)]/30 bg-[var(--danger-soft)] p-6 text-[var(--danger)]">
           Failed to load pages. {(error as Error).message}
         </div>
       )}
@@ -120,14 +120,14 @@ function ContentPerformanceContent() {
       {domain && pagesData && !isLoading && (
         <section className="mx-auto max-w-6xl space-y-8">
           <div>
-            <h2 className="mb-3 text-lg font-semibold text-white">
+            <h2 className="mb-3 text-lg font-semibold text-[var(--fg)]">
               Performance distribution
             </h2>
             <PerformanceDistribution pages={pageRows} />
           </div>
 
           <div>
-            <h2 className="mb-3 text-lg font-semibold text-white">
+            <h2 className="mb-3 text-lg font-semibold text-[var(--fg)]">
               URL leaderboard
             </h2>
             <UrlLeaderboard pages={pageRows} onRowClick={handleRowClick} />
@@ -149,7 +149,7 @@ export default function ContentPerformancePage() {
     <Suspense
       fallback={
         <main className="p-6 md:p-8">
-          <div className="h-48 animate-pulse rounded-xl bg-zinc-800/50" />
+          <div className="h-48 animate-pulse rounded-searchable-lg bg-[var(--surface-elevated)]" />
         </main>
       }
     >
