@@ -5,25 +5,32 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p ${PORT:-3000}",
     "lint": "next lint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:push:pg": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "worker:visibility-score": "tsx src/worker/visibility-score.ts",
+    "worker:visibility-score:once": "tsx src/worker/visibility-score.ts --once"
   },
   "dependencies": {
-    "big.js": "^6.2.1",
     "@neondatabase/serverless": "^0.10.0",
+    "@tremor/react": "^3.18.7",
+    "@vercel/analytics": "^1.4.0",
+    "autoprefixer": "^10.4.24",
+    "big.js": "^6.2.1",
     "drizzle-orm": "^0.36.0",
-    "next": "^14.2.35",
     "ioredis": "^5.4.0",
+    "next": "^14.2.35",
     "pg": "^8.13.0",
+    "postcss": "^8.5.6",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "uuid": "^10.0.0",
-    "@vercel/analytics": "^1.4.0"
+    "swr": "^2.4.0",
+    "tailwindcss": "^3.4.19",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/big.js": "^6.2.0",
@@ -33,6 +40,7 @@
     "@types/react-dom": "^18.3.0",
     "@types/uuid": "^10.0.0",
     "drizzle-kit": "^0.28.0",
+    "tsx": "^4.19.0",
     "typescript": "^5.0.0"
   }
 }

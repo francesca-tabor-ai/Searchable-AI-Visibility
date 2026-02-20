@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { domainVisibilityScores } from "@/db/schema";
+import { domainVisibilityScores, domainVisibilityScoreHistory } from "@/db/schema";
 import { getDomainAggregations } from "./aggregation";
 import { computeScores } from "./engine";
 
@@ -42,6 +42,11 @@ export async function runVisibilityScoreCalculation(): Promise<RunVisibilityScor
           computedAt: now,
         },
       });
+    await db.insert(domainVisibilityScoreHistory).values({
+      domain: r.domain,
+      score: r.score,
+      computedAt: now,
+    });
   }
 
   return { computed: results.length, at: now };

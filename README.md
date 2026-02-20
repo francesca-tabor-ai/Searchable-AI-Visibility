@@ -68,7 +68,9 @@ Health check for deployments (e.g. Railway). Returns `200` when the database is 
 ### Searchable Visibility Score™
 
 - **`GET /api/visibility-scores`** — List latest score per domain (0–100), `previousScore`, and `change` (current − previous day). Computed by a daily cron.
-- **Cron:** `GET /api/cron/visibility-score` runs every 24h (e.g. 07:00 UTC on Vercel), aggregates citation/share/coverage/position/recency, and upserts into `domain_visibility_scores`. Secure with `CRON_SECRET`.
+- **`GET /api/visibility-scores/overview?domain=...`** — Overview payload for the dashboard: current score, trend, and last 30 days history (for sparkline). Omit `domain` to use the top domain.
+- **Dashboard:** **`/dashboard`** — Overview component: large Visibility Score (0–100), trend indicator (+/− % in green/red), 30-day sparkline (Tremor), and domain selector. Data via SWR with 1-hour revalidation.
+- **Cron:** `GET /api/cron/visibility-score` runs every 24h (e.g. Vercel Cron). On **Railway**, use the standalone worker: `npm run worker:visibility-score:once` (Cron) or `npm run worker:visibility-score` (long-running). Same `DATABASE_URL`; logs start, duration, and success/failure. See [DEPLOYMENT.md](./DEPLOYMENT.md#railway-visibility-score-worker-scheduled-job).
 
 ## Citation extraction
 

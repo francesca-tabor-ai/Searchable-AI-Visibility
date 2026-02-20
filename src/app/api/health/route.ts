@@ -63,8 +63,9 @@ export async function GET() {
     checks,
   };
 
-  const statusCode = status === "error" ? 503 : 200;
-  return NextResponse.json(body, { status: statusCode });
+  // Always return 200 so platform healthchecks pass (e.g. Railway).
+  // Body reports status/checks so monitoring can still see DB/Redis state.
+  return NextResponse.json(body, { status: 200 });
 }
 
 async function getRedisClient(

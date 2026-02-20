@@ -69,6 +69,16 @@ export const domainVisibilityScores = pgTable("domain_visibility_scores", {
   computedAt: timestamp("computed_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/**
+ * Append-only history for sparklines (one row per domain per cron run).
+ */
+export const domainVisibilityScoreHistory = pgTable("domain_visibility_score_history", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  domain: text("domain").notNull(),
+  score: doublePrecision("score").notNull(),
+  computedAt: timestamp("computed_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Query = typeof queries.$inferSelect;
 export type NewQuery = typeof queries.$inferInsert;
 export type Response = typeof responses.$inferSelect;
@@ -77,3 +87,5 @@ export type Citation = typeof citations.$inferSelect;
 export type NewCitation = typeof citations.$inferInsert;
 export type DomainVisibilityScore = typeof domainVisibilityScores.$inferSelect;
 export type NewDomainVisibilityScore = typeof domainVisibilityScores.$inferInsert;
+export type DomainVisibilityScoreHistory = typeof domainVisibilityScoreHistory.$inferSelect;
+export type NewDomainVisibilityScoreHistory = typeof domainVisibilityScoreHistory.$inferInsert;

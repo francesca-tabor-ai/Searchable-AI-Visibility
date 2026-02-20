@@ -25,6 +25,50 @@
 
 ---
 
+## Railway: Visibility Score worker (scheduled job)
+
+The **Searchable Visibility Score™** calculation can run on Railway in two ways. The worker uses the **same `DATABASE_URL`** as the main app (reference it from the same project or set it on the worker service).
+
+### Option A: Railway Cron (recommended)
+
+Add a **Cron** or **one-off run** service that executes the job every 24h:
+
+- **Command:** `npm run worker:visibility-score:once`
+- **Schedule:** e.g. daily at 07:00 UTC (configure in Railway Cron / cron expression).
+- **Variables:** Set `DATABASE_URL` (link from Postgres or copy from the main app service).
+
+Each run logs to stdout so you see **start**, **duration**, and **success/failure** in Railway’s centralized logs.
+
+### Option B: Long-running worker process
+
+Add a separate **Service** that runs the worker in a loop (runs immediately, then every 24h):
+
+- **Start command:** `npm run worker:visibility-score`
+- **Variables:** Same `DATABASE_URL` as the main app.
+
+Logs are JSON lines: `visibility_score_start`, `visibility_score_success` (with `durationMs`, `computed`), `visibility_score_failure` (with `durationMs`, `error`).
+
+### Logging
+
+All runs log structured JSON to stdout for Railway:
+
+- `event: "visibility_score_start"` — job started
+- `event: "visibility_score_success"` — `durationMs`, `computed`, `at`
+- `event: "visibility_score_failure"` — `durationMs`, `error` (and `stack` in dev)
+
+### Scalability: Background Worker + Redis queue
+
+If the calculation becomes heavy (many domains or large aggregations), you can move to a **Railway Background Worker** and queue only the domains that need re-scoring:
+
+1. Add a **Redis** plugin and set `REDIS_URL` on the worker.
+2. Instead of recomputing all domains in one job, push domain IDs (or “recompute all” tokens) to a Redis list/stream.
+3. Run a long-lived worker that pops from the queue and runs the visibility score logic per domain (or in batches), writing to `domain_visibility_scores`.
+4. Trigger the queue from the main app (e.g. after ingest) or from a lightweight cron that only enqueues “full run” or delta domains.
+
+The current codebase does not include the queue producer/consumer; add it when you need this scaling path.
+
+---
+
 ## Free tier: Neon (PostgreSQL)
 
 Use [Neon.tech](https://neon.tech) for PostgreSQL when you want a free tier (e.g. 0.5 GiB storage, unlimited databases).
