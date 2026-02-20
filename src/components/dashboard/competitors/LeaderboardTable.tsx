@@ -70,7 +70,7 @@ export default function LeaderboardTable({
               </span>
             </th>
             <th
-              className="sticky left-0 z-20 bg-[var(--surface-elevated)] px-4 py-3 font-semibold text-[var(--muted)] cursor-pointer select-none hover:text-[var(--fg)] min-w-[140px]"
+              className="sticky left-[52px] z-20 bg-[var(--surface-elevated)] px-4 py-3 font-semibold text-[var(--muted)] cursor-pointer select-none hover:text-[var(--fg)] min-w-[140px] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)]"
               onClick={() => onSortChange && handleHeaderClick("domain")}
               role={onSortChange ? "button" : undefined}
             >
@@ -121,7 +121,7 @@ export default function LeaderboardTable({
               <td className="sticky left-0 z-[1] bg-inherit px-4 py-4 tabular-nums text-[var(--muted)]">
                 {e.rank}
               </td>
-              <td className="sticky left-0 z-[1] bg-inherit px-4 py-4 min-w-[140px]">
+              <td className="sticky left-[52px] z-[1] bg-inherit px-4 py-4 min-w-[140px] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)]">
                 <span className="flex items-center gap-2">
                   <span className={e.isTarget ? "text-[var(--accent)] font-semibold" : "text-[var(--fg)]"}>
                     {e.domain}

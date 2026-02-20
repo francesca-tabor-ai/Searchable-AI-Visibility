@@ -156,10 +156,12 @@ export default function LeaderboardCard({
   };
 
   useEffect(() => {
-    if (searchInput !== qFromUrl) updateUrl({ q: searchInput.trim() || null });
+    if (debouncedQuery !== (searchParams.get(URL_KEYS.q) ?? "")) {
+      updateUrl({ q: debouncedQuery.trim() || null });
+    }
   }, [debouncedQuery]);
   useEffect(() => {
-    setSearchInput(qFromUrl);
+    if (qFromUrl !== debouncedQuery) setSearchInput(qFromUrl);
   }, [qFromUrl]);
 
   const filtered = useMemo(() => {

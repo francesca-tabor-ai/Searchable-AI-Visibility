@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState, Suspense } from "react";
 import useSWR from "swr";
-import LeaderboardTable from "@/components/dashboard/competitors/LeaderboardTable";
+import LeaderboardCard from "@/components/dashboard/competitors/LeaderboardCard";
 import type { LeaderboardEntry } from "@/components/dashboard/competitors/LeaderboardTable";
 import ShareOfVoiceDonut from "@/components/dashboard/competitors/ShareOfVoiceDonut";
 import OverlapHeatmap from "@/components/dashboard/competitors/OverlapHeatmap";
@@ -145,7 +145,7 @@ function CompetitiveAnalysisContent() {
               <h2 className="mb-4 text-lg font-semibold text-[var(--fg)]">
                 Leaderboard
               </h2>
-              <LeaderboardTable
+              <LeaderboardCard
                 entries={entries}
                 onSelectCompetitor={handleSelectCompetitor}
               />
