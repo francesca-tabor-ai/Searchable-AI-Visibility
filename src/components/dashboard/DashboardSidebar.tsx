@@ -64,6 +64,15 @@ export default function DashboardSidebar() {
         `}
       >
         <div className="flex h-full flex-col pt-16 md:pt-6">
+          <div className="px-4 pb-3 md:px-3 md:pb-2">
+            <Link
+              href="/"
+              onClick={closeMobile}
+              className="text-lg font-bold tracking-tight text-[var(--fg)] transition-colors hover:text-[var(--accent)]"
+            >
+              Searchable
+            </Link>
+          </div>
           <nav className="flex flex-col gap-1 px-4 py-4 md:px-3">
             {NAV_LINKS.map(({ href, label }) => {
               const isActive =

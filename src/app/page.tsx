@@ -33,6 +33,14 @@ export default function Home() {
             Citation tracking for serious teams. See how often AI answers cite
             your content and stay ahead of the curve.
           </p>
+          <p className="mt-4 text-[var(--muted)] leading-relaxed">
+            When users ask ChatGPT, Perplexity, or Claude a question, the answers
+            often link to articles, docs, and product pages. If your domain
+            isn’t in those citations, you’re invisible. Searchable ingests AI
+            responses, tracks which URLs get cited, and gives you visibility
+            scores, trends, and competitor benchmarks—so you can measure and
+            improve how AI search surfaces your content.
+          </p>
           <div className="mt-10">
             <Link
               href="/dashboard"
@@ -42,6 +50,40 @@ export default function Home() {
               <span aria-hidden>→</span>
             </Link>
           </div>
+
+          <section className="mt-16">
+            <h2 className="text-lg font-bold tracking-tight text-[var(--fg)]">
+              Why it matters
+            </h2>
+            <p className="mt-2 text-[var(--muted)] leading-relaxed">
+              AI search is becoming the front door to the web. Users trust
+              answers that cite sources—and they click through. If your content
+              is cited often, you get more qualified traffic and authority. If
+              it isn’t, you need to know so you can adapt your content strategy,
+              fix coverage gaps, and outpace competitors who are already
+              optimizing for AI visibility.
+            </p>
+          </section>
+
+          <section className="mt-12">
+            <h2 className="text-lg font-bold tracking-tight text-[var(--fg)]">
+              What you get
+            </h2>
+            <ul className="mt-4 space-y-2 text-[var(--muted)] leading-relaxed">
+              <li>
+                <strong className="text-[var(--fg)]">Visibility scores</strong> — Aggregate metrics so you can see how your domain performs over time and across models.
+              </li>
+              <li>
+                <strong className="text-[var(--fg)]">Citation trends</strong> — Track which URLs and queries drive citations and spot changes early.
+              </li>
+              <li>
+                <strong className="text-[var(--fg)]">Competitor benchmarks</strong> — See who else is getting cited for the same topics and where you stand.
+              </li>
+              <li>
+                <strong className="text-[var(--fg)]">API-first</strong> — Ingest responses from any AI product, query citations and scores programmatically, and plug into your existing workflows.
+              </li>
+            </ul>
+          </section>
 
           <section className="mt-16">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--muted)]">

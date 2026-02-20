@@ -170,9 +170,7 @@ function ContentPerformanceContent() {
 
           {/* Section spacing 24–32px */}
           <section className="space-y-8">
-            <div className={`${CARD_CLASS} p-5 md:p-6`}>
-              <PerformanceDistribution pages={pageRows} />
-            </div>
+            <PerformanceDistribution pages={pageRows} isLoading={isLoading} />
 
             <div className={`${CARD_CLASS} p-5 md:p-6`}>
               <UrlLeaderboard
