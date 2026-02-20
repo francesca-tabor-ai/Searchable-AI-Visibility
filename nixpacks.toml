@@ -1,5 +1,5 @@
-# Nixpacks config for Railway (optional; Next.js is auto-detected)
-# https://nixpacks.com/docs/configuration
+# Nixpacks build config (Railway). Run Drizzle schema push before Next.js build.
+# https://nixpacks.com/docs/guides/configuring-builds
 
 [phases.setup]
 nixPkgs = ["nodejs_20"]
@@ -8,7 +8,5 @@ nixPkgs = ["nodejs_20"]
 cmds = ["npm ci"]
 
 [phases.build]
-cmds = ["npm run build"]
-
-[start]
-cmd = "npm run start"
+# Push schema to Postgres (skip if DATABASE_URL unset or push fails), then build
+cmds = ["npm run db:push:pg || true", "npm run build"]

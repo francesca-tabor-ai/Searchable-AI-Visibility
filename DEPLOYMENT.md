@@ -12,13 +12,10 @@
    - **Health check:** Railway uses the path in `railway.toml`. This repo sets `healthcheckPath = "/api/health"`. The app returns `200` when the database is up and `503` when it is down.
 
 3. **Database initialization (first deploy or new DB)**  
-   After the first deploy, run Drizzle push against the deployed Postgres (e.g. from your machine using the same `DATABASE_URL`):
-
-   ```bash
-   DATABASE_URL="postgresql://user:pass@host:port/railway" npx drizzle-kit push
-   ```
-
-   Or add a one-off job / deploy script that runs `npm run db:push:pg` with `DATABASE_URL` set. Railway does not run build scripts after deploy, so you must run the push once when you create a new Postgres instance.
+   This repo is set up so **migrations run before the build** on Railway:
+   - **`nixpacks.toml`** — Nixpacks build phase runs `npm run db:push:pg` (or skips if it fails) then `npm run build`. No separate step needed if `DATABASE_URL` is set at build time.
+   - **`deploy.sh`** — Alternative: set the Railway build command to `./deploy.sh` or `npm run deploy` to run schema push then build.
+   - Manual one-off: `DATABASE_URL="postgresql://..." npx drizzle-kit push`
 
 4. **Free tier / trial credits**  
    If Railway trial credits run out, keep the Node app on Railway and move the database to Neon (see below).
@@ -167,6 +164,12 @@ If the overlap logic (finding domains that share queries with a target) is too s
 Then compute **overlap_score = shared_queries / total_queries_for_target** in the app. Visibility score and rank can still come from Postgres (`domain_visibility_scores`). This moves the heavy overlap work to Redis and keeps Postgres for durable storage and visibility scores.
 
 The codebase does not implement this path yet; add it when you need to scale overlap discovery.
+
+---
+
+## Free stack (full guide)
+
+For a **zero or minimal fixed-cost** setup, see **[docs/FREE-STACK.md](./docs/FREE-STACK.md)** — Neon (primary DB), TiDB Cloud (analytical), Upstash (Redis), Cloudflare R2 (storage), Clerk/NextAuth (auth).
 
 ---
 

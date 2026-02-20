@@ -21,7 +21,8 @@ const fetcher = async (url: string): Promise<OverviewData> => {
   const r = await fetch(url);
   const json = await r.json();
   if (!r.ok) {
-    const msg = json?.error ?? json?.details ?? r.statusText;
+    // Prefer details (e.g. DB error) so the user sees the real cause
+    const msg = json?.details ?? json?.error ?? r.statusText;
     throw new Error(typeof msg === "string" ? msg : "Failed to load overview");
   }
   return json as OverviewData;
@@ -51,6 +52,10 @@ export default function Overview({ domain: domainProp }: { domain?: string | nul
       <div className="rounded-xl border border-red-500/30 bg-red-950/20 p-6 text-red-400">
         <p className="font-medium">Failed to load overview</p>
         <p className="mt-1 text-sm opacity-90">{error.message}</p>
+        <p className="mt-3 text-xs text-red-300/80">
+          Ensure <code className="rounded bg-red-900/50 px-1">DATABASE_URL</code> is set and you’ve run{" "}
+          <code className="rounded bg-red-900/50 px-1">npm run db:push</code>. Run the visibility-score cron or worker to populate scores.
+        </p>
       </div>
     );
   }

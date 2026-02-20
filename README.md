@@ -6,6 +6,16 @@ AI Search Visibility platform: track which sources (URLs) AI models cite for giv
 
 - **Next.js 14** (App Router), **TypeScript**, **Drizzle ORM**, **PostgreSQL** (Railway, Neon, or local).
 
+## Project structure (production-ready)
+
+- **`src/`** — All app code (App Router, API routes, components, db, lib).
+- **Absolute imports** — Use `@/components/...`, `@/db/...`, `@/lib/...` (see `tsconfig.json` paths).
+- **Environment** — Copy `.env.example` to `.env` and set `DATABASE_URL`, and optionally `NEXTAUTH_SECRET`, `AI_COLLECTOR_API_KEY`. See [Deployment](#deployment).
+- **Drizzle** — Schema and types in `src/db/schema.ts` (Queries, Responses, Citations, domain_visibility_scores, url_performance_metrics, etc.). Push with `npm run db:push` or `db:push:pg`.
+- **Deploy** — `deploy.sh` (or `npm run deploy`) runs schema push then build. Railway can use **`nixpacks.toml`** so the build phase runs migrations automatically.
+- **Lint** — Strict ESLint via `.eslintrc.json` (extends `next/core-web-vitals`). Run `npm run lint`. If ESLint is not installed, add `eslint` and `eslint-config-next` as dev dependencies.
+- **Design** — **[docs/DESIGN-LANGUAGE.md](./docs/DESIGN-LANGUAGE.md)** — Searchable design language: SaaS dark mode, data-first, action-oriented. Use for all new UI components.
+
 ## Setup
 
 ```bash
@@ -111,3 +121,4 @@ URLs are normalized: `https`, lowercase host and path, no query params (unless a
 - **Vercel (frontend + API):** Edge runtime for `/api/ingest`, cron, analytics, preview per PR — see **[VERCEL.md](./VERCEL.md)**.
 - **Railway:** See **[DEPLOYMENT.md](./DEPLOYMENT.md)** — PostgreSQL + Node.js, `DATABASE_URL`, optional Redis, health check at `/api/health`.
 - **Free tier:** **Neon.tech** (0.5 GiB, unlimited DBs) as Postgres; use with either Vercel or Railway.
+- **Free stack (no/minimal cost):** **[docs/FREE-STACK.md](./docs/FREE-STACK.md)** — Neon (primary DB), TiDB Cloud (analytical), Upstash (Redis), Cloudflare R2 (storage), Clerk/NextAuth (auth).

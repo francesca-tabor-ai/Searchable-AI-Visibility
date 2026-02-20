@@ -16,7 +16,8 @@
     "worker:visibility-score:once": "tsx src/worker/visibility-score.ts --once",
     "script:url-metrics": "tsx src/scripts/populate-url-performance-metrics.ts",
     "worker:url-health": "tsx src/worker/url-health.ts",
-    "worker:url-health:once": "tsx src/worker/url-health.ts --once"
+    "worker:url-health:once": "tsx src/worker/url-health.ts --once",
+    "deploy": "bash deploy.sh"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.0",
@@ -46,6 +47,8 @@
     "@types/react-dom": "^18.3.0",
     "@types/uuid": "^10.0.0",
     "drizzle-kit": "^0.28.0",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.1.6",
     "tsx": "^4.19.0",
     "typescript": "^5.0.0"
   }

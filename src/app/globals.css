@@ -2,15 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
+/**
+ * Searchable design language — SaaS dark mode, data-first, action-oriented.
+ * See docs/DESIGN-LANGUAGE.md for full guidelines.
+ */
 :root {
+  /* Core: minimalist & professional (slate/zinc) */
   --bg: #0a0a0a;
   --fg: #fafafa;
   --muted: #a1a1aa;
+  --border: rgba(63, 63, 70, 0.5);
+  --surface: rgba(39, 39, 42, 0.5);
+  --surface-elevated: rgba(39, 39, 42, 0.8);
+
+  /* Accent: used sparingly for CTAs and highlights */
   --accent: #3b82f6;
+  --accent-soft: rgba(59, 130, 246, 0.2);
+
+  /* Signature gradient (purples, blues, pinks, oranges) — hero/illustration only */
+  --gradient-start: #8b5cf6;
+  --gradient-mid: #3b82f6;
+  --gradient-end: #f97316;
+
+  /* Semantic */
   --success: #22c55e;
+  --success-soft: rgba(34, 197, 94, 0.2);
   --danger: #ef4444;
+  --danger-soft: rgba(239, 68, 68, 0.2);
+
+  /* Data-first: score and key metric emphasis */
+  --color-score: #fafafa;
+  --color-muted: #a1a1aa;
+
+  /* Typography: humanist sans, high legibility */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
 body {
   @apply bg-[var(--bg)] text-[var(--fg)] antialiased;
+  font-family: var(--font-sans);
 }

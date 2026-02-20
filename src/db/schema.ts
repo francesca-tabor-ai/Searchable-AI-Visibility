@@ -10,6 +10,12 @@ import {
 } from "drizzle-orm/pg-core";
 
 /**
+ * Canonical Drizzle + Postgres schema for Searchable (PRD).
+ * Tables: Queries, Responses, Citations, domain_visibility_scores, domain_visibility_score_history,
+ * competitor_metrics, url_performance_metrics, url_canonical_mapping, url_health_check.
+ */
+
+/**
  * User query that triggered an AI response.
  * Stored once per distinct query; responses reference this.
  */

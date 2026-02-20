@@ -75,11 +75,31 @@ export async function GET(request: NextRequest) {
       domains: scores.map((s) => ({ domain: s.domain, score: s.score })),
     });
   } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    const isMissingTable =
+      typeof message === "string" &&
+      (message.includes("does not exist") || message.includes("relation"));
+    const isMissingDbUrl =
+      typeof message === "string" && message.includes("DATABASE_URL");
     console.error("Overview failed:", err);
+
+    // If tables don't exist or DB not configured, return empty overview so the dashboard still loads
+    if (isMissingTable || isMissingDbUrl) {
+      return NextResponse.json({
+        domain: null,
+        score: null,
+        previousScore: null,
+        change: null,
+        computedAt: null,
+        history: [],
+        domains: [],
+      });
+    }
+
     return NextResponse.json(
       {
         error: "Failed to load overview",
-        details: err instanceof Error ? err.message : "Unknown error",
+        details: message,
       },
       { status: 500 }
     );
