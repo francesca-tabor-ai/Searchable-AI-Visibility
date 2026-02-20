@@ -138,29 +138,31 @@ function CompetitiveAnalysisContent() {
 
       {domain && leaderboard && !leaderboardLoading && (
         <>
-          {/* Leaderboard — primary focus */}
-          <div className={CARD_CLASS}>
-            <h2 className="mb-4 text-lg font-semibold text-[var(--fg)]">
-              Leaderboard
-            </h2>
-            <LeaderboardCard
-              entries={entries}
-              onSelectCompetitor={handleSelectCompetitor}
-            />
-          </div>
+          <div className="space-y-6">
+            {/* Leaderboard — primary focus */}
+            <div className={CARD_CLASS}>
+              <h2 className="mb-4 text-lg font-semibold text-[var(--fg)]">
+                Leaderboard
+              </h2>
+              <LeaderboardCard
+                entries={entries}
+                onSelectCompetitor={handleSelectCompetitor}
+              />
+            </div>
 
-          {/* Share of voice — directly below Leaderboard */}
-          <div className={`${CARD_CLASS} mt-6`}>
-            <ShareOfVoiceDonut data={donutData} />
-          </div>
+            {/* Share of voice — directly below Leaderboard, full width */}
+            <div className={CARD_CLASS}>
+              <ShareOfVoiceDonut data={donutData} />
+            </div>
 
-          {/* Full-width: Query Overlap card */}
-          <div className={`${CARD_CLASS} mt-6 mb-8`}>
-            <OverlapHeatmap
-              targetDomain={domain}
-              entries={overlapEntries}
-              onSelectCompetitor={handleSelectCompetitor}
-            />
+            {/* Query Overlap — full width */}
+            <div className={`${CARD_CLASS} mb-8`}>
+              <OverlapHeatmap
+                targetDomain={domain}
+                entries={overlapEntries}
+                onSelectCompetitor={handleSelectCompetitor}
+              />
+            </div>
           </div>
 
           {selectedCompetitor && (
