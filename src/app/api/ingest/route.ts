@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { v4 as uuidv4 } from "uuid";
-import { db } from "@/db";
+import { db } from "@/db/edge";
 import { queries, responses, citations } from "@/db/schema";
 import { parseCitations } from "@/lib/citations/parseCitations";
 import { eq } from "drizzle-orm";
+
+export const runtime = "edge";
 
 type IngestBody = {
   query: string;
@@ -22,6 +23,10 @@ function isIngestBody(value: unknown): value is IngestBody {
     typeof (value as IngestBody).model === "string" &&
     typeof (value as IngestBody).rawResponseText === "string"
   );
+}
+
+function randomId(): string {
+  return crypto.randomUUID();
 }
 
 export async function POST(request: NextRequest) {
@@ -60,7 +65,7 @@ export async function POST(request: NextRequest) {
       const existing = await tx.select().from(queries).where(eq(queries.text, queryTextTrimmed)).limit(1);
       let queryId = existing[0]?.id;
       if (!queryId) {
-        queryId = uuidv4();
+        queryId = randomId();
         await tx.insert(queries).values({
           id: queryId,
           text: queryTextTrimmed,
@@ -68,7 +73,7 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      const responseId = uuidv4();
+      const responseId = randomId();
       await tx.insert(responses).values({
         id: responseId,
         queryId,
@@ -80,7 +85,7 @@ export async function POST(request: NextRequest) {
       for (const { url, domain } of extracted) {
         try {
           await tx.insert(citations).values({
-            id: uuidv4(),
+            id: randomId(),
             responseId,
             url,
             domain,
@@ -91,7 +96,7 @@ export async function POST(request: NextRequest) {
           const code = typeof err === "object" && err !== null && "code" in err ? (err as { code?: string }).code : undefined;
           const isUniqueViolation =
             code === "SQLITE_CONSTRAINT_UNIQUE" ||
-            code === "23505" || // Postgres unique_violation
+            code === "23505" ||
             /UNIQUE|unique constraint/i.test(msg);
           if (!isUniqueViolation) throw err;
         }

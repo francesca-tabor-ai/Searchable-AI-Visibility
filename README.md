@@ -82,7 +82,6 @@ URLs are normalized to `https` and domains stored without `www` (e.g. `nike.com`
 
 ## Deployment
 
-See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for:
-
-- **Railway:** PostgreSQL + Node.js app, `DATABASE_URL`, optional Redis, health check at `/api/health`
-- **Free tier:** Using **Neon.tech** (0.5 GiB, unlimited DBs) as Postgres when Railway trial credits expire
+- **Vercel (frontend + API):** Edge runtime for `/api/ingest`, cron, analytics, preview per PR — see **[VERCEL.md](./VERCEL.md)**.
+- **Railway:** See **[DEPLOYMENT.md](./DEPLOYMENT.md)** — PostgreSQL + Node.js, `DATABASE_URL`, optional Redis, health check at `/api/health`.
+- **Free tier:** **Neon.tech** (0.5 GiB, unlimited DBs) as Postgres; use with either Vercel or Railway.

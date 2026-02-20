@@ -1,3 +1,5 @@
+import { Analytics } from "@vercel/analytics/react";
+
 export const metadata = {
   title: "Searchable — AI Search Visibility",
   description: "AI Citation Tracking for Search Visibility",
@@ -10,7 +12,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
