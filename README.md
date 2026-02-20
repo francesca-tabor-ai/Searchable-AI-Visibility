@@ -29,3 +29,55 @@ People ask AI tools for recommendations and decisions. If your site isn’t cite
 ## Positioning
 
 Searchable is **“AI search visibility”** — the place to measure, benchmark, and improve how often AI models cite your brand. It’s built as a serious, data-first SaaS: dark UI, clear metrics, and every insight paired with an action (e.g. “Optimize this page”, “View queries”, “Refresh”). Calm, confident, and built for teams that treat AI answers as a channel worth measuring and optimizing.
+
+---
+
+## Populate data (empty dashboard / “No domains with visibility data”)
+
+If the dashboard, **Visibility trends**, Competitive Analysis, or Content performance shows **“No domains with visibility data”** or **“Ingest some citations first”**, run these in order from the project root (with `DATABASE_URL` in `.env.local`):
+
+```bash
+# 1. Seed queries, responses, citations, and visibility scores (required for all views)
+npm run db:seed
+
+# 2. Populate URL-level metrics (required for Content performance / URL leaderboard)
+npm run script:url-metrics
+```
+
+Then refresh the app. To fill **competitor_metrics** (Visibility trends “top 2 competitors”, competitor leaderboard), run:
+
+```bash
+npm run script:competitors-refresh
+```
+
+(Or call `POST /api/competitors/refresh` with optional `{"domain":"nike.com"}` when the app is running.)
+
+---
+
+Other ways to add data:
+
+### Option A: Seed sample data (fastest)
+
+Run the two commands in the **Populate data** section above: `npm run db:seed` then `npm run script:url-metrics`. That fills visibility scores, trends, leaderboard, and URL metrics.
+
+### Option B: Compute visibility scores from existing citations
+
+If you already have citations (e.g. from `/api/ingest`) but no scores:
+
+```bash
+npm run worker:visibility-score:once
+```
+
+This computes the Searchable Visibility Score™ per domain and fills the visibility tables.
+
+### Option C: Ingest via API
+
+Send real AI responses to the ingest API so the app extracts citations and stores them:
+
+```bash
+curl -X POST http://localhost:3000/api/ingest \
+  -H "Content-Type: application/json" \
+  -d '{"query":"best running shoes","model":"gpt-4","rawResponseText":"See [Nike](https://www.nike.com/running) and 1. https://adidas.com/run"}'
+```
+
+Then run `npm run worker:visibility-score:once` to compute scores, or wait for the scheduled cron.

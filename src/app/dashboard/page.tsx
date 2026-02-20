@@ -8,29 +8,33 @@ export const metadata = {
 
 function OverviewFallback() {
   return (
-    <div className="rounded-searchable-lg border border-[var(--border)] bg-[var(--surface)] p-8">
-      <div className="h-32 animate-pulse rounded-lg bg-[var(--surface-elevated)]" />
-      <div className="mt-4 h-24 animate-pulse rounded-lg bg-[var(--surface-elevated)]" />
+    <div className="space-y-6">
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm md:p-8">
+        <div className="h-32 animate-pulse rounded-lg bg-[var(--surface-elevated)]" />
+      </div>
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm md:p-8">
+        <div className="h-48 animate-pulse rounded-lg bg-[var(--surface-elevated)]" />
+      </div>
     </div>
   );
 }
 
 export default function DashboardPage() {
   return (
-    <main className="min-h-screen bg-[var(--bg)] px-6 py-8 md:px-10 md:py-10">
-      <header className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-[var(--fg)]">
+    <div className="mx-auto max-w-5xl">
+      <header className="mb-6 md:mb-8">
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--fg)] md:text-[28px]">
           Searchable
         </h1>
-        <p className="mt-1 text-sm text-[var(--muted)] leading-relaxed">
+        <p className="mt-2 text-sm leading-relaxed text-[var(--muted-secondary)] md:text-base">
           AI search visibility · Overview
         </p>
       </header>
-      <section className="mx-auto max-w-4xl">
+      <section>
         <Suspense fallback={<OverviewFallback />}>
           <Overview />
         </Suspense>
       </section>
-    </main>
+    </div>
   );
 }

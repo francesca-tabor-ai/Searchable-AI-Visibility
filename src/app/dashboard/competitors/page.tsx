@@ -33,6 +33,9 @@ type QueriesData = {
   queries: QueryRow[];
 };
 
+const CARD_CLASS =
+  "rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm";
+
 function CompetitiveAnalysisContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -75,92 +78,97 @@ function CompetitiveAnalysisContent() {
   }));
 
   return (
-    <main className="p-6 md:p-8">
+    <div className="mx-auto max-w-5xl min-h-0 px-6 py-6">
+      {/* Page header: clear hierarchy, 16px between title and subtitle */}
       <header className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-[var(--fg)]">
-          Competitive analysis
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--fg)] md:text-[28px]">
+          Competitive Analysis
         </h1>
-        <p className="mt-1 text-sm text-[var(--muted)] leading-relaxed">
-          Leaderboard, share of voice, and query overlap · Click a competitor to see which queries they’re winning
+        <p className="mt-4 text-sm leading-relaxed text-[var(--muted-secondary)] md:text-base" style={{ fontSize: "14px" }}>
+          Leaderboard, share of voice, and query overlap
         </p>
       </header>
 
+      {/* Filter bar: label above, 40px height, 16–24px margin below */}
       {overview?.domains && overview.domains.length > 1 && (
-        <div className="mb-6">
-          <label className="text-sm text-[var(--muted)]">Domain </label>
-          <select
-            className="ml-2 rounded-searchable border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-sm text-[var(--fg)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-            value={domain}
-            onChange={(e) => {
-              const next = e.target.value;
-              router.push(
-                next
-                  ? `/dashboard/competitors?domain=${encodeURIComponent(next)}`
-                  : "/dashboard/competitors"
-              );
-            }}
-          >
-            {overview.domains.map((d) => (
-              <option key={d.domain} value={d.domain}>
-                {d.domain} ({d.score.toFixed(1)})
-              </option>
-            ))}
-          </select>
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-[var(--muted)]">
+              Selected Domain
+            </label>
+            <select
+              className="h-10 min-h-[40px] min-w-[200px] rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-sm text-[var(--fg)] transition-[border-color,box-shadow] duration-200 focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:ring-offset-1"
+              value={domain}
+              onChange={(e) => {
+                const next = e.target.value;
+                router.push(
+                  next
+                    ? `/dashboard/competitors?domain=${encodeURIComponent(next)}`
+                    : "/dashboard/competitors"
+                );
+              }}
+            >
+              {overview.domains.map((d) => (
+                <option key={d.domain} value={d.domain}>
+                  {d.domain} ({d.score.toFixed(1)})
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       )}
 
       {!domain && (
-        <div className="rounded-searchable-lg border border-[var(--border)] bg-[var(--surface)] p-8 text-center text-[var(--muted)]">
+        <div className={`${CARD_CLASS} p-8 text-center text-[var(--muted-placeholder)]`}>
           No domains with visibility data. Ingest some citations first.
         </div>
       )}
 
       {domain && leaderboardLoading && (
-        <div className="rounded-searchable-lg border border-[var(--border)] bg-[var(--surface)] p-8">
+        <div className={CARD_CLASS}>
           <div className="h-48 animate-pulse rounded-lg bg-[var(--surface-elevated)]" />
         </div>
       )}
 
       {domain && leaderboardError && (
-        <div className="rounded-searchable-lg border border-[var(--danger)]/30 bg-[var(--danger-soft)] p-6 text-[var(--danger)]">
+        <div className="rounded-xl border border-[var(--danger)]/30 bg-[var(--danger-soft)] p-5 text-[var(--danger)] shadow-sm">
           Failed to load leaderboard. {leaderboardError.message}
         </div>
       )}
 
       {domain && leaderboard && !leaderboardLoading && (
-        <section className="mx-auto max-w-5xl space-y-8">
-          <div>
-            <h2 className="mb-3 text-lg font-semibold text-[var(--fg)]">
-              Leaderboard
-            </h2>
-            <LeaderboardTable
-              entries={entries}
+        <>
+          {/* Grid: 2 columns — Leaderboard (primary) + Share of voice; gap 24px */}
+          <div className="grid gap-6 md:grid-cols-2 mb-8">
+            {/* Leaderboard card — primary focus */}
+            <div className={`${CARD_CLASS} md:col-span-1`}>
+              <h2 className="mb-4 text-lg font-semibold text-[var(--fg)]">
+                Leaderboard
+              </h2>
+              <LeaderboardTable
+                entries={entries}
+                onSelectCompetitor={handleSelectCompetitor}
+              />
+            </div>
+
+            {/* Share of voice metric card */}
+            <div className={CARD_CLASS}>
+              <ShareOfVoiceDonut data={donutData} />
+            </div>
+          </div>
+
+          {/* Full-width: Query Overlap card */}
+          <div className={`${CARD_CLASS} mb-8`}>
+            <OverlapHeatmap
+              targetDomain={domain}
+              entries={overlapEntries}
               onSelectCompetitor={handleSelectCompetitor}
             />
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2">
-            <div>
-              <h2 className="mb-3 text-lg font-semibold text-[var(--fg)]">
-                Share of voice
-              </h2>
-              <ShareOfVoiceDonut data={donutData} />
-            </div>
-            <div>
-              <h2 className="mb-3 text-lg font-semibold text-[var(--fg)]">
-                Overlap heatmap
-              </h2>
-              <OverlapHeatmap
-                targetDomain={domain}
-                entries={overlapEntries}
-                onSelectCompetitor={handleSelectCompetitor}
-              />
-            </div>
-          </div>
-
           {selectedCompetitor && (
-            <div>
-              <h2 className="mb-3 text-lg font-semibold text-[var(--fg)]">
+            <div className={CARD_CLASS}>
+              <h2 className="mb-4 text-lg font-semibold text-[var(--fg)]">
                 Drill-down
               </h2>
               <QueriesDrillDown
@@ -171,9 +179,9 @@ function CompetitiveAnalysisContent() {
               />
             </div>
           )}
-        </section>
+        </>
       )}
-    </main>
+    </div>
   );
 }
 
@@ -181,9 +189,9 @@ export default function CompetitiveAnalysisPage() {
   return (
     <Suspense
       fallback={
-        <main className="p-6 md:p-8">
-          <div className="h-48 animate-pulse rounded-searchable-lg bg-[var(--surface-elevated)]" />
-        </main>
+        <div className="mx-auto max-w-5xl px-6 py-6">
+          <div className="h-48 animate-pulse rounded-xl bg-[var(--surface-elevated)]" />
+        </div>
       }
     >
       <CompetitiveAnalysisContent />

@@ -36,6 +36,10 @@
   /* Data readability */
   --color-score: #0a0a0b;
   --color-muted: #52525b;
+  /* Secondary text (readable, not too light) */
+  --muted-secondary: #6b7280;
+  /* Placeholder / empty value (e.g. "Not available") */
+  --muted-placeholder: #9ca3af;
 
   /* Typography: humanist sans, high legibility, generous line height */
   --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -62,5 +66,21 @@
   /* Body: regular/light, generous line height */
   p {
     line-height: var(--leading-relaxed);
+  }
+}
+
+/* Tremor chart container: prevent axis label clipping, add breathing room */
+.recharts-wrapper {
+  margin: 0 auto;
+}
+.recharts-cartesian-axis-tick-value {
+  fill: var(--muted);
+  font-size: 12px;
+}
+/* Smooth transitions for interactive elements */
+@media (prefers-reduced-motion: no-preference) {
+  a, button, [role="button"], select, input {
+    transition-duration: 200ms;
+    transition-timing-function: ease-out;
   }
 }

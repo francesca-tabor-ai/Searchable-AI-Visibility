@@ -1,8 +1,9 @@
 /**
  * Populates url_performance_metrics from citations.
  * Run: npm run script:url-metrics  (or npx tsx src/scripts/populate-url-performance-metrics.ts)
- * Requires DATABASE_URL.
+ * Requires DATABASE_URL in .env or .env.local.
  */
+import "./load-env";
 import {
   fetchCitationPositions,
   aggregateUrlMetrics,

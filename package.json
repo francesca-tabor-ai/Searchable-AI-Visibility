@@ -16,6 +16,7 @@
     "worker:visibility-score": "tsx src/worker/visibility-score.ts",
     "worker:visibility-score:once": "tsx src/worker/visibility-score.ts --once",
     "script:url-metrics": "tsx src/scripts/populate-url-performance-metrics.ts",
+    "script:competitors-refresh": "tsx src/scripts/refresh-competitor-metrics.ts",
     "worker:url-health": "tsx src/worker/url-health.ts",
     "worker:url-health:once": "tsx src/worker/url-health.ts --once",
     "deploy": "bash deploy.sh"

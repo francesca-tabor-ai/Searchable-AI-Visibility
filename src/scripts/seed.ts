@@ -12,6 +12,8 @@ import {
   citations,
   domainVisibilityScores,
   domainVisibilityScoreHistory,
+  urlCanonicalMapping,
+  urlHealthCheck,
 } from "@/db/schema";
 
 const SEED_QUERIES = [
@@ -68,6 +70,32 @@ const SEED_RESPONSES: { model: string; rawText: string; citationDomains: { url: 
       { url: "https://www.nike.com/insoles", domain: "nike.com" },
     ],
   },
+];
+
+/** Sample URLs to seed url_health_check (mock "checked, ok" so table has data). */
+const SEED_HEALTH_CHECK_URLS = [
+  "https://www.nike.com/pegasus",
+  "https://www.adidas.com/ultraboost",
+  "https://www.brooksrunning.com/ghost",
+  "https://asana.com",
+  "https://monday.com",
+  "https://notion.so",
+  "https://www.typescriptlang.org/docs",
+  "https://developer.mozilla.org",
+  "https://stackoverflow.com",
+  "https://hubspot.com",
+  "https://salesforce.com",
+  "https://zoho.com",
+  "https://www.brooksrunning.com",
+  "https://www.asics.com",
+  "https://www.nike.com/insoles",
+];
+
+/** Example canonical URL mappings: alternate URLs → canonical (for redirects / duplicate content). */
+const SEED_CANONICAL_MAPPINGS = [
+  { fromUrl: "https://nike.com/pegasus", toUrl: "https://www.nike.com/pegasus" },
+  { fromUrl: "https://adidas.com/ultraboost", toUrl: "https://www.adidas.com/ultraboost" },
+  { fromUrl: "https://www.typescriptlang.org/docs/", toUrl: "https://www.typescriptlang.org/docs" },
 ];
 
 const SEED_VISIBILITY_SCORES = [
@@ -179,6 +207,36 @@ async function seed() {
     }
   }
   console.log(`Visibility score history: ${historyDomains.length * 7} rows`);
+
+  // 5. Optional: canonical URL mappings (redirects / duplicate content)
+  for (const row of SEED_CANONICAL_MAPPINGS) {
+    await db
+      .insert(urlCanonicalMapping)
+      .values(row)
+      .onConflictDoUpdate({
+        target: urlCanonicalMapping.fromUrl,
+        set: { toUrl: row.toUrl },
+      });
+  }
+  console.log(`URL canonical mappings: ${SEED_CANONICAL_MAPPINGS.length} upserted`);
+
+  // 6. Optional: url_health_check (mock "checked, ok" for sample URLs)
+  const healthNow = new Date();
+  for (const normalizedUrl of SEED_HEALTH_CHECK_URLS) {
+    await db
+      .insert(urlHealthCheck)
+      .values({
+        normalizedUrl,
+        lastCheckedAt: healthNow,
+        statusCode: 200,
+        isOk: 1,
+      })
+      .onConflictDoUpdate({
+        target: urlHealthCheck.normalizedUrl,
+        set: { lastCheckedAt: healthNow, statusCode: 200, isOk: 1 },
+      });
+  }
+  console.log(`URL health checks: ${SEED_HEALTH_CHECK_URLS.length} upserted`);
 
   console.log("Seed complete.");
 }

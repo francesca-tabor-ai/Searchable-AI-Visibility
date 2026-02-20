@@ -11,16 +11,24 @@ if (!raw?.trim()) {
     "DATABASE_URL is not set. Copy .env.example to .env and add your PostgreSQL connection string (e.g. from Neon or Railway)."
   );
 }
-// Trim so trailing newline/carriage return from .env doesn't break pg URL parsing
 const url = raw.trim();
+
+// Parse URL so we can pass ssl explicitly (drizzle-kit/pg may ignore ssl when only url is set)
+const parsed = new URL(url);
+const isSecure = parsed.protocol === "postgresql:" || parsed.protocol === "postgres:";
+const password = parsed.password ? decodeURIComponent(parsed.password) : undefined;
 
 export default defineConfig({
   schema: "./src/db/schema.ts",
   out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: {
-    url,
+    host: parsed.hostname,
+    port: parsed.port ? parseInt(parsed.port, 10) : 5432,
+    user: parsed.username || "postgres",
+    password: password || undefined,
+    database: parsed.pathname ? parsed.pathname.slice(1) : "railway",
     // Railway's public proxy uses a cert that may be self-signed; allow for local/drizzle-kit
-    ssl: { rejectUnauthorized: false },
+    ssl: isSecure ? { rejectUnauthorized: false } : false,
   },
 });

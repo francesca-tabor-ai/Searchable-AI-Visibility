@@ -1,14 +1,22 @@
 "use client";
 
+import { useMemo } from "react";
 import { DonutChart } from "@tremor/react";
 
 export type ShareEntry = { name: string; value: number };
 
 export default function ShareOfVoiceDonut({ data }: { data: ShareEntry[] }) {
+  const topShare = useMemo(() => {
+    if (data.length === 0) return null;
+    const max = data.reduce((acc, d) => (d.value > acc.value ? d : acc), data[0]);
+    return { name: max.name, value: max.value };
+  }, [data]);
+
   if (data.length === 0) {
     return (
-      <div className="flex h-[240px] items-center justify-center rounded-searchable-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--muted)]">
-        No citation share data
+      <div className="flex flex-col items-center justify-center py-8 text-center">
+        <h2 className="mb-1 text-lg font-semibold text-[var(--fg)]">Share of Voice</h2>
+        <p className="text-[var(--muted-placeholder)]">No citation share data</p>
       </div>
     );
   }
@@ -16,8 +24,16 @@ export default function ShareOfVoiceDonut({ data }: { data: ShareEntry[] }) {
   const chartData = data.map((d) => ({ name: d.name, share: d.value }));
 
   return (
-    <div className="rounded-searchable-lg border border-[var(--border)] bg-[var(--surface)] p-4">
-      <p className="mb-3 text-sm font-medium text-[var(--muted)]">Share of voice (top competitors)</p>
+    <div>
+      <h2 className="mb-1 text-lg font-semibold text-[var(--fg)]">Share of Voice</h2>
+      <div className="mb-2 flex items-baseline gap-2">
+        <span className="text-3xl font-bold tabular-nums text-[var(--fg)] md:text-4xl">
+          {topShare != null ? `${Number(topShare.value).toFixed(1)}%` : "—"}
+        </span>
+      </div>
+      <p className="mb-5 text-sm text-[var(--muted-secondary)]">
+        Among tracked competitors
+      </p>
       <DonutChart
         data={chartData}
         index="name"

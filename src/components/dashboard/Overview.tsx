@@ -48,11 +48,11 @@ export default function Overview({ domain: domainProp }: { domain?: string | nul
 
   if (error) {
     return (
-      <div className="rounded-searchable-lg border border-[var(--danger)]/30 bg-[var(--danger-soft)] p-6 text-[var(--danger)]">
+      <div className="rounded-xl border border-[var(--danger)]/30 bg-[var(--danger-soft)] p-6 text-[var(--danger)] shadow-sm transition-opacity duration-200">
         <p className="font-medium">Failed to load overview</p>
         <p className="mt-1 text-sm opacity-90">{error.message}</p>
         <p className="mt-3 text-xs opacity-80">
-          Ensure <code className="rounded bg-[var(--danger-soft)] px-1">DATABASE_URL</code> is set and you've run{" "}
+          Ensure <code className="rounded bg-[var(--danger-soft)] px-1">DATABASE_URL</code> is set and you&apos;ve run{" "}
           <code className="rounded bg-[var(--danger-soft)] px-1">npm run db:push</code>. Run the visibility-score cron or worker to populate scores.
         </p>
       </div>
@@ -61,14 +61,18 @@ export default function Overview({ domain: domainProp }: { domain?: string | nul
 
   if (isLoading || !data) {
     return (
-      <div className="rounded-searchable-lg border border-[var(--border)] bg-[var(--surface)] p-8">
-        <div className="h-32 animate-pulse rounded-lg bg-[var(--surface-elevated)]" />
-        <div className="mt-4 h-24 animate-pulse rounded-lg bg-[var(--surface-elevated)]" />
+      <div className="space-y-6">
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm md:p-8">
+          <div className="h-32 animate-pulse rounded-lg bg-[var(--surface-elevated)]" />
+        </div>
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm md:p-8">
+          <div className="h-48 animate-pulse rounded-lg bg-[var(--surface-elevated)]" />
+        </div>
       </div>
     );
   }
 
-  const score = data.score ?? 0;
+  const score = data.score ?? null;
   const change = data.change ?? null;
   const previousScore = data.previousScore ?? null;
   const percentLabel = formatPercent(change, previousScore);
@@ -76,72 +80,96 @@ export default function Overview({ domain: domainProp }: { domain?: string | nul
   const trendUp = hasTrend && (change ?? 0) >= 0;
   const history = data.history ?? [];
   const domains = data.domains ?? [];
-  const chartData = history.length
-    ? history.map((h) => ({ date: h.date, Score: h.score }))
-    : [{ date: new Date().toISOString().slice(0, 10), Score: score }];
+  const hasRealScore = score != null && (data.computedAt != null || history.length > 0);
+  const chartData =
+    history.length > 0
+      ? history.map((h) => ({ date: h.date, Score: h.score }))
+      : [];
 
   return (
-    <div className="rounded-searchable-lg border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium uppercase tracking-wider text-[var(--muted)]">
-            Visibility Score
+    <div className="grid gap-6 lg:gap-8">
+      {/* Visibility Score card */}
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm transition-shadow duration-200 md:p-8">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="text-base font-medium text-[var(--muted)]">
+              Visibility Score
+            </p>
             {data.domain ? (
-              <span className="ml-2 font-normal normal-case text-[var(--muted-soft)]">· {data.domain}</span>
+              <p className="mt-0.5 text-sm text-[var(--muted-secondary)]">
+                {data.domain}
+              </p>
             ) : null}
-          </p>
-          <div className="mt-2 flex items-baseline gap-3">
-            <span className="text-6xl font-bold tabular-nums text-[var(--fg)]">
-              {Number(score).toFixed(1)}
-            </span>
-            <span className="text-2xl font-medium text-[var(--muted)]">/ 100</span>
-            {hasTrend && (
-              <span
-                className={`rounded-lg px-2 py-0.5 text-sm font-semibold tabular-nums ${
-                  trendUp ? "bg-[var(--success-soft)] text-[var(--success)]" : "bg-[var(--danger-soft)] text-[var(--danger)]"
-                }`}
-              >
-                {percentLabel}
+            <div className="mt-4 flex flex-wrap items-baseline gap-3">
+              <span className="text-7xl font-bold tabular-nums text-[var(--fg)] md:text-8xl">
+                {hasRealScore ? Number(score).toFixed(1) : "—"}
               </span>
-            )}
+              {hasRealScore && (
+                <span className="text-xl font-medium text-[var(--muted)]">/ 100</span>
+              )}
+              {hasTrend && (
+                <span
+                  className={`rounded-lg px-2.5 py-1 text-sm font-semibold tabular-nums transition-colors duration-200 ${
+                    trendUp
+                      ? "bg-[var(--success-soft)] text-[var(--success)]"
+                      : "bg-[var(--danger-soft)] text-[var(--danger)]"
+                  }`}
+                >
+                  {percentLabel}
+                </span>
+              )}
+            </div>
           </div>
+          {domains.length > 1 && (
+            <div className="flex items-center">
+              <select
+                className="h-10 min-h-[40px] min-w-[180px] rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-2 text-sm text-[var(--fg)] transition-[border-color,box-shadow] duration-200 focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:ring-offset-1"
+                value={data.domain ?? ""}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  router.push(next ? `/dashboard?domain=${encodeURIComponent(next)}` : "/dashboard");
+                }}
+              >
+                {domains.map((d) => (
+                  <option key={d.domain} value={d.domain}>
+                    {d.domain} ({d.score.toFixed(1)})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
-        {domains.length > 1 && (
-          <select
-            className="rounded-searchable border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-sm text-[var(--fg)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-            value={data.domain ?? ""}
-            onChange={(e) => {
-              const next = e.target.value;
-              const path = next ? `/dashboard?domain=${encodeURIComponent(next)}` : "/dashboard";
-              router.push(path);
-            }}
-          >
-            {domains.map((d) => (
-              <option key={d.domain} value={d.domain}>
-                {d.domain} ({d.score.toFixed(1)})
-              </option>
-            ))}
-          </select>
-        )}
       </div>
 
-      <div className="h-[200px]">
-        <AreaChart
-          data={chartData}
-          index="date"
-          categories={["Score"]}
-          colors={["blue"]}
-          valueFormatter={(v) => `${Number(v).toFixed(1)}`}
-          showLegend={false}
-          showGridLines={true}
-          showAnimation={true}
-          className="h-full w-full"
-        />
+      {/* Chart card */}
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm transition-shadow duration-200 md:p-8">
+        <h2 className="text-lg font-medium text-[var(--fg)]">Score over time</h2>
+        <p className="mt-1 text-sm text-[var(--muted-secondary)]">
+          Last 30 days
+          {data.computedAt ? ` · Updated ${new Date(data.computedAt).toLocaleString()}` : ""}
+        </p>
+        <div className="mt-6 min-h-[200px] px-1">
+          {chartData.length > 0 ? (
+            <div className="h-[220px] w-full">
+              <AreaChart
+                data={chartData}
+                index="date"
+                categories={["Score"]}
+                colors={["blue"]}
+                valueFormatter={(v) => `${Number(v).toFixed(1)}`}
+                showLegend={false}
+                showGridLines={true}
+                showAnimation={true}
+                className="h-full w-full"
+              />
+            </div>
+          ) : (
+            <div className="flex h-[200px] items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--bg)] text-sm text-[var(--muted)]">
+              No history yet. Scores will appear here once computed.
+            </div>
+          )}
+        </div>
       </div>
-      <p className="mt-3 text-xs text-[var(--muted)] leading-relaxed">
-        Last 30 days
-        {data.computedAt ? ` · Updated ${new Date(data.computedAt).toLocaleString()}` : ""}
-      </p>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 
 export default function DashboardLayout({
   children,
@@ -7,35 +7,12 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="min-h-screen bg-[var(--bg)]">
-      <nav className="border-b border-[var(--border)] bg-[var(--bg)] px-6 py-3 md:px-8">
-        <div className="mx-auto flex max-w-5xl items-center gap-6">
-          <Link
-            href="/dashboard"
-            className="text-sm font-medium text-[var(--muted)] transition hover:text-[var(--fg)]"
-          >
-            Overview
-          </Link>
-          <Link
-            href="/dashboard/competitors"
-            className="text-sm font-medium text-[var(--muted)] transition hover:text-[var(--fg)]"
-          >
-            Competitive Analysis
-          </Link>
-          <Link
-            href="/dashboard/content"
-            className="text-sm font-medium text-[var(--muted)] transition hover:text-[var(--fg)]"
-          >
-            Content Performance
-          </Link>
-          <Link
-            href="/dashboard/trends"
-            className="text-sm font-medium text-[var(--muted)] transition hover:text-[var(--fg)]"
-          >
-            Visibility Trends
-          </Link>
-        </div>
-      </nav>
-      {children}
+      <div className="grid min-h-screen grid-cols-1 md:grid-cols-[minmax(0,16rem)_1fr]">
+        <DashboardSidebar />
+        <main className="min-w-0 px-4 py-6 md:px-6 md:py-8 lg:px-8 lg:py-10">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

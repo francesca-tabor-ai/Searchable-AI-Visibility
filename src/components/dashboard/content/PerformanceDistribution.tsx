@@ -13,19 +13,13 @@ const DECILES = 10; // 10% buckets
  */
 function computeConcentration(pages: PageForDistribution[]): { bucket: string; "Citation share (%)": number }[] {
   if (pages.length === 0) {
-    return Array.from({ length: DECILES }, (_, i) => ({
-      bucket: `Top ${(i + 1) * 10}%`,
-      "Citation share (%)": 0,
-    }));
+    return [];
   }
 
   const sorted = [...pages].sort((a, b) => b.citationCount - a.citationCount);
   const totalCitations = sorted.reduce((s, p) => s + p.citationCount, 0);
   if (totalCitations === 0) {
-    return Array.from({ length: DECILES }, (_, i) => ({
-      bucket: `Top ${(i + 1) * 10}%`,
-      "Citation share (%)": 0,
-    }));
+    return [];
   }
 
   const n = sorted.length;
@@ -66,30 +60,44 @@ export default function PerformanceDistribution({
     };
   }, [pages]);
 
+  const hasData = chartData.length > 0 && pages.length > 0 && pages.some((p) => p.citationCount > 0);
+
   return (
-    <div className="rounded-searchable-lg border border-[var(--border)] bg-[var(--surface)] p-4">
-      <p className="mb-2 text-sm font-medium text-[var(--muted)]">Concentration</p>
-      {summary != null && (
-        <p className="mb-4 text-sm text-[var(--fg)] leading-relaxed">
+    <div>
+      <h2 className="mb-3 text-base font-medium text-[var(--fg)] md:text-lg">
+        Citation Concentration
+      </h2>
+      {summary != null && hasData && (
+        <p className="mb-2 text-sm leading-relaxed text-[var(--fg)] md:text-base">
           <span className="font-semibold text-[var(--fg)]">{summary.pagePct}%</span> of your pages
           drive <span className="font-semibold text-[var(--fg)]">{summary.citationPct}%</span> of AI
           citations.
         </p>
       )}
-      <div className="h-[220px]">
-        <BarChart
-          data={chartData}
-          index="bucket"
-          categories={["Citation share (%)"]}
-          colors={["blue"]}
-          valueFormatter={(v) => `${Number(v).toFixed(1)}%`}
-          showLegend={false}
-          showGridLines={true}
-          showAnimation={true}
-          layout="vertical"
-          className="h-full w-full"
-        />
-      </div>
+      <p className="mb-4 text-xs text-[var(--muted-secondary)]">
+        Based on last 30 days
+      </p>
+
+      {!hasData ? (
+        <div className="flex h-[260px] items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--surface-elevated)] text-sm text-[var(--muted-placeholder)]">
+          No distribution data yet
+        </div>
+      ) : (
+        <div className="h-[260px] px-4 py-2 md:px-6">
+          <BarChart
+            data={chartData}
+            index="bucket"
+            categories={["Citation share (%)"]}
+            colors={["blue"]}
+            valueFormatter={(v) => `${Math.round(Number(v))}%`}
+            showLegend={false}
+            showGridLines={true}
+            showAnimation={true}
+            layout="vertical"
+            className="h-full w-full"
+          />
+        </div>
+      )}
     </div>
   );
 }
